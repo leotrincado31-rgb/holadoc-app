@@ -1,0 +1,149 @@
+/* ============================================================
+   HolaDoc! — Design Tokens (variables.css)
+   Premium medical-grade design system for elderly users.
+   All values are CSS custom properties scoped to :root.
+   ============================================================ */
+
+:root {
+  /* -------------------------------------------------------
+     COLOR — Brand
+     ------------------------------------------------------- */
+  --primary:          #034C81;
+  --primary-light:    #0369A1;
+  --primary-lighter:  #0EA5E9;
+  --primary-lightest: #E0F2FE;
+
+  --secondary:        #0D9488;
+  --secondary-light:  #14B8A6;
+
+  --accent:           #10B981;
+  --accent-light:     #34D399;
+
+  /* -------------------------------------------------------
+     COLOR — Semantic
+     ------------------------------------------------------- */
+  --warning:       #F59E0B;
+  --warning-light: #FCD34D;
+
+  --danger:        #EF4444;
+  --danger-light:  #FCA5A5;
+
+  --success:       #10B981;
+  --success-light: #34D399;
+
+  --info:          #0EA5E9;
+  --info-light:    #BAE6FD;
+
+  /* -------------------------------------------------------
+     COLOR — Backgrounds
+     ------------------------------------------------------- */
+  --bg-primary:   #F0F4F8;
+  --bg-secondary: #E2E8F0;
+  --bg-surface:   #FFFFFF;
+  --bg-glass:     rgba(255, 255, 255, 0.75);
+  --bg-glass-heavy: rgba(255, 255, 255, 0.88);
+  --bg-overlay:   rgba(0, 0, 0, 0.5);
+
+  /* -------------------------------------------------------
+     COLOR — Text
+     ------------------------------------------------------- */
+  --text-primary:   #1E293B;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+  --text-inverse:   #FFFFFF;
+  --text-link:      var(--primary-light);
+
+  /* -------------------------------------------------------
+     SHADOWS — Elevation system (3D depth)
+     ------------------------------------------------------- */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg:  0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-xl:  0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-3d:  0 10px 40px rgba(3, 76, 129, 0.15);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* -------------------------------------------------------
+     BORDER RADIUS
+     ------------------------------------------------------- */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-2xl:  32px;
+  --radius-full: 9999px;
+
+  /* -------------------------------------------------------
+     SPACING — 8-point scale
+     ------------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* -------------------------------------------------------
+     TYPOGRAPHY — Font sizes (accessible, 19px base)
+     ------------------------------------------------------- */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  --text-xs:  13px;
+  --text-sm:  15px;
+  --text-base: 19px;
+  --text-lg:  22px;
+  --text-xl:  26px;
+  --text-2xl: 32px;
+  --text-3xl: 40px;
+  --text-4xl: 48px;
+
+  /* -------------------------------------------------------
+     TYPOGRAPHY — Font weights
+     ------------------------------------------------------- */
+  --font-light:    300;
+  --font-regular:  400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  /* -------------------------------------------------------
+     TYPOGRAPHY — Line heights
+     ------------------------------------------------------- */
+  --leading-tight:  1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* -------------------------------------------------------
+     TRANSITIONS
+     ------------------------------------------------------- */
+  --transition-fast:   0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow:   0.5s ease;
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* -------------------------------------------------------
+     Z-INDEX — Layer system
+     ------------------------------------------------------- */
+  --z-base:       1;
+  --z-dropdown:   10;
+  --z-sticky:     50;
+  --z-navbar:     100;
+  --z-overlay:    500;
+  --z-modal:      1000;
+  --z-toast:      2000;
+  --z-tooltip:    3000;
+
+  /* -------------------------------------------------------
+     CONTAINER / LAYOUT
+     ------------------------------------------------------- */
+  --container-xs:  480px;
+  --container-sm:  640px;
+  --container-md:  800px;
+  --container-lg:  1024px;
+  --container-xl:  1280px;
+
+  --navbar-height:    64px;
+  --bottom-nav-height: 72px;
+}

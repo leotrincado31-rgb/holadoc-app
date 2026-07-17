@@ -1,0 +1,10 @@
+{
+  "name": "holadoc",
+  "version": "1.0.0",
+  "description": "App de seguimiento médico-paciente HolaDoc!",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx -y serve ."
+  },
+  "dependencies": {}
+}

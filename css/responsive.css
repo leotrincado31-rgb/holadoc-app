@@ -1,0 +1,478 @@
+/* ============================================================
+   HolaDoc! — Responsive (responsive.css)
+   Breakpoints: 480 / 768 / 1024
+   Mobile-first adjustments for elderly-friendly UI.
+   ============================================================ */
+
+/* ==========================================================
+   SMALL PHONES — max-width: 480px
+   ========================================================== */
+@media (max-width: 480px) {
+  html {
+    font-size: 17px;
+  }
+
+  /* Layout */
+  .main-content {
+    padding: var(--space-4);
+    padding-bottom: calc(var(--bottom-nav-height) + var(--space-5));
+  }
+
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  /* Navbar */
+  .navbar {
+    padding: 0 var(--space-4);
+    height: 56px;
+  }
+
+  .navbar-brand {
+    font-size: var(--text-lg);
+  }
+
+  /* Grids → single column */
+  .grid-2,
+  .grid-3,
+  .grid-auto {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cards */
+  .card {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+  }
+
+  /* Action cards — 2-col on small phones */
+  .grid-2.action-grid,
+  .grid-3.action-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .action-card {
+    padding: var(--space-4);
+  }
+
+  .action-card .action-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+  }
+
+  /* Buttons */
+  .btn {
+    height: 48px;
+    padding: 0 var(--space-5);
+    font-size: 17px;
+  }
+
+  .btn-lg {
+    height: 52px;
+    padding: 0 var(--space-5);
+    font-size: var(--text-base);
+  }
+
+  .btn-fab {
+    width: 56px;
+    height: 56px;
+    bottom: calc(var(--bottom-nav-height) + var(--space-4));
+    right: var(--space-4);
+  }
+
+  /* Page header */
+  .page-title {
+    font-size: var(--text-xl);
+  }
+
+  .page-subtitle {
+    font-size: 16px;
+  }
+
+  /* Modal */
+  .modal {
+    width: 95%;
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    max-height: 85vh;
+  }
+
+  /* Forms */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    height: 50px;
+    padding: 0 var(--space-4);
+    font-size: 17px;
+  }
+
+  .form-textarea {
+    height: 100px;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Calendar */
+  .calendar-day {
+    font-size: var(--text-sm);
+  }
+
+  .time-slot {
+    padding: var(--space-3) var(--space-3);
+    font-size: 16px;
+  }
+
+  /* Tabs — scrollable */
+  .tabs {
+    gap: 0;
+  }
+
+  .tab {
+    padding: var(--space-3) var(--space-4);
+    font-size: 16px;
+  }
+
+  /* Timeline */
+  .timeline {
+    padding-left: var(--space-5);
+  }
+
+  /* Toast */
+  .toast-container {
+    top: var(--space-3);
+    right: var(--space-3);
+    left: var(--space-3);
+  }
+
+  .toast {
+    min-width: unset;
+    width: 100%;
+    font-size: 16px;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: var(--space-5);
+  }
+
+  .section-title {
+    font-size: var(--text-base);
+  }
+
+  /* Health card */
+  .health-value {
+    font-size: var(--text-2xl);
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .avatar-lg {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+  }
+
+  /* List items */
+  .list-item {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  /* Prescription card */
+  .prescription-card {
+    padding: var(--space-4);
+  }
+}
+
+/* ==========================================================
+   PHONES / SMALL TABLETS — max-width: 768px
+   ========================================================== */
+@media (max-width: 768px) {
+  /* Bottom nav always visible */
+  .bottom-nav {
+    display: flex;
+  }
+
+  /* Main content must clear bottom nav */
+  .main-content {
+    padding-bottom: calc(var(--bottom-nav-height) + var(--space-5));
+  }
+
+  /* 3-col grids → 2 columns */
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Auto grid — smaller min */
+  .grid-auto {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  /* Modal */
+  .modal {
+    width: 94%;
+    margin: var(--space-4);
+  }
+
+  /* FAB */
+  .btn-fab {
+    bottom: calc(var(--bottom-nav-height) + var(--space-4));
+  }
+
+  /* Navbar actions — tighter */
+  .navbar-actions {
+    gap: var(--space-3);
+  }
+
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Full-width buttons on mobile */
+  .btn-block-mobile {
+    width: 100%;
+  }
+}
+
+/* ==========================================================
+   TABLETS — 769px to 1024px
+   ========================================================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  html {
+    font-size: 18px;
+  }
+
+  .main-content {
+    max-width: var(--container-lg);
+    padding: var(--space-6);
+    padding-bottom: var(--space-6);
+  }
+
+  .container {
+    max-width: var(--container-lg);
+  }
+
+  /* Bottom nav — optional on tablet */
+  .bottom-nav {
+    display: flex;
+  }
+
+  .main-content {
+    padding-bottom: calc(var(--bottom-nav-height) + var(--space-6));
+  }
+
+  /* 3-col grid stays 3 */
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Cards — medium padding */
+  .card {
+    padding: var(--space-5);
+  }
+
+  /* Modal — comfortable width */
+  .modal {
+    max-width: 560px;
+  }
+
+  /* Hide mobile-only elements */
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* ==========================================================
+   DESKTOP — min-width: 1025px
+   ========================================================== */
+@media (min-width: 1025px) {
+  html {
+    font-size: 19px;
+  }
+
+  /* Hide bottom nav on desktop */
+  .bottom-nav {
+    display: none;
+  }
+
+  /* Main content — centered, wider */
+  .main-content {
+    max-width: var(--container-md);
+    margin: 0 auto;
+    padding: var(--space-7) var(--space-6);
+    padding-bottom: var(--space-7);
+  }
+
+  .container {
+    max-width: var(--container-md);
+  }
+
+  /* Grid-3 stays 3 columns */
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+
+  .grid-2 {
+    gap: var(--space-5);
+  }
+
+  /* Cards — generous padding */
+  .card {
+    padding: var(--space-6);
+  }
+
+  /* Navbar — wider */
+  .navbar {
+    padding: 0 var(--space-7);
+  }
+
+  /* Modal */
+  .modal {
+    max-width: 540px;
+    padding: var(--space-7);
+  }
+
+  /* FAB repositioned */
+  .btn-fab {
+    bottom: var(--space-6);
+    right: var(--space-6);
+  }
+
+  /* Larger page title */
+  .page-title {
+    font-size: var(--text-3xl);
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: var(--text-xl);
+  }
+
+  /* Hide mobile-only elements */
+  .mobile-only {
+    display: none !important;
+  }
+
+  /* Action cards — 3 columns on desktop */
+  .action-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Desktop hover interactions are more pronounced */
+  .card:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card-3d:hover {
+    transform: translateY(-6px) rotateX(3deg);
+    box-shadow: var(--shadow-3d);
+  }
+}
+
+/* ==========================================================
+   LARGE DESKTOP — min-width: 1440px
+   ========================================================== */
+@media (min-width: 1440px) {
+  .main-content {
+    max-width: 900px;
+  }
+
+  .container {
+    max-width: 900px;
+  }
+
+  /* Action cards — can go 4 wide on very large screens */
+  .action-grid-wide {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ==========================================================
+   LANDSCAPE PHONE — special handling
+   ========================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .navbar {
+    height: 48px;
+  }
+
+  .bottom-nav {
+    height: 56px;
+  }
+
+  .modal {
+    max-height: 95vh;
+  }
+
+  .main-content {
+    padding-bottom: calc(56px + var(--space-4));
+  }
+}
+
+/* ==========================================================
+   HIGH CONTRAST — forced colors mode
+   ========================================================== */
+@media (forced-colors: active) {
+  .btn,
+  .form-input,
+  .form-select,
+  .form-textarea {
+    border: 2px solid ButtonText;
+  }
+
+  .badge,
+  .status-dot {
+    border: 1px solid ButtonText;
+  }
+
+  .card {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* ==========================================================
+   TOUCH DEVICE optimizations
+   ========================================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets */
+  .btn {
+    min-height: 48px;
+  }
+
+  .tab {
+    min-height: 44px;
+  }
+
+  .list-item {
+    min-height: 56px;
+  }
+
+  .calendar-day {
+    min-height: 44px;
+  }
+
+  .time-slot {
+    min-height: 48px;
+  }
+
+  /* Disable hover effects on touch */
+  .card-3d:hover {
+    transform: none;
+  }
+
+  .hover-lift:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .action-card:hover .action-icon {
+    transform: none;
+  }
+}
