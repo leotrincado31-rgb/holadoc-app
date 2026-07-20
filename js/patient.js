@@ -900,13 +900,19 @@
                         </div>
                         <div style="border-top:1px solid rgba(0,0,0,0.06); border-bottom:1px solid rgba(0,0,0,0.06); padding:16px 0; margin-bottom:16px;">
                             <p style="font-size:18px; font-weight:800; color:var(--primary); margin:0 0 8px 0;">RP/ Prescripción:</p>
-                            <p style="font-size:18px; font-weight:700; white-space:pre-line; line-height:1.5;">${req.response.prescription || req.details.medications}</p>
+                            <p style="font-size:18px; font-weight:700; white-space:pre-line; line-height:1.5;">${req.response.prescribedMedications || req.response.prescription || req.details.medications}</p>
                         </div>
                         ${req.response.diagnostico ? `<p style="font-size:16px; margin:4px 0;"><b>Diagnóstico:</b> ${req.response.diagnostico}</p>` : ''}
                         ${req.response.indicaciones ? `<p style="font-size:16px; margin:4px 0;"><b>Indicaciones:</b> ${req.response.indicaciones}</p>` : ''}
                         
+                        ${(user.obraSocial || '').toUpperCase().includes('PAMI') ? `
+                            <div style="margin: 16px 0; padding: 16px; border: 2px dashed #059669; background-color: #ECFDF5; border-radius: 8px; color: #065F46; font-weight: 700; font-size: 16px; text-align: center; line-height: 1.4;">
+                                Su receta se realizó con éxito, acerquese a su farmacia de confianza ( para pacientes PAMI de red pami habilitadas )
+                            </div>
+                        ` : ''}
+
                         <div style="text-align:right; margin-top:24px; font-size:16px; font-style:italic;">
-                            <p style="margin:0; font-weight:700; color:var(--text-primary);">${req.response.doctorSignature || `Dr./Dra. asignado`}</p>
+                            <p style="margin:0; font-weight:700; color:var(--text-primary);">${req.response.doctorName || req.response.doctorSignature || `Dr./Dra. asignado`}</p>
                             <p style="margin:0; color:var(--text-muted); font-size:14px;">Firma Digital HolaDoc!</p>
                         </div>
                     </div>
