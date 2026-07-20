@@ -229,7 +229,9 @@
                     }
 
                     // Check if doctor works on that day of week
-                    const dayOfWeek = new Date(dateVal).getDay(); // 0 is Sunday, 1 is Monday...
+                    const [year, month, day] = dateVal.split('-');
+                    const localDate = new Date(year, month - 1, day);
+                    const dayOfWeek = localDate.getDay(); // 0 is Sunday, 1 is Monday...
                     const dayKeys = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
                     const dayKey = dayKeys[dayOfWeek];
                     const worksToday = selectedDoctor.schedule[dayKey] && selectedDoctor.schedule[dayKey].active;
