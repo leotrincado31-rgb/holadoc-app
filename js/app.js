@@ -101,6 +101,12 @@
         const isPatient = user.type === 'patient';
         const isDoctor  = user.type === 'doctor';
 
+        // Apply background
+        document.body.style.backgroundImage = isPatient ? "url('img/bg_patient.png')" : "url('img/bg_doctor.png')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+        document.body.style.backgroundAttachment = "fixed";
+
         app.innerHTML = `
             <!-- Panel Header (dark bar) -->
             <header class="panel-header" id="panel-header">

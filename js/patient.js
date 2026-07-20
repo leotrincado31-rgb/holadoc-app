@@ -34,32 +34,32 @@
                     <!-- Quick Actions Grid -->
                     <div class="grid grid-3" style="margin-bottom: 40px;">
                         <a href="#/patient/turno" class="action-card action-card--turno">
-                            <div class="action-icon">📅</div>
+                            <div class="action-icon" style="padding:0; background:transparent;"><img src="img/icon_turno.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Turno"></div>
                             <div style="font-weight: 800; font-size: 19px; margin-top:8px;">Solicitar Turno</div>
                             <div class="text-muted" style="font-size:14px; margin-top:4px;">Reservá día y horario.</div>
                         </a>
                         <a href="#/patient/receta" class="action-card action-card--receta">
-                            <div class="action-icon">💊</div>
+                            <div class="action-icon" style="padding:0; background:transparent;"><img src="img/icon_receta.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Receta"></div>
                             <div style="font-weight: 800; font-size: 19px; margin-top:8px;">Pedir Receta</div>
                             <div class="text-muted" style="font-size:14px; margin-top:4px;">Recibí tu receta digital.</div>
                         </a>
                         <a href="#/patient/derivacion" class="action-card action-card--derivacion">
-                            <div class="action-icon">🔄</div>
+                            <div class="action-icon" style="padding:0; background:transparent;"><img src="img/icon_derivacion.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Derivacion"></div>
                             <div style="font-weight: 800; font-size: 19px; margin-top:8px;">Derivación</div>
                             <div class="text-muted" style="font-size:14px; margin-top:4px;">Pedí pase a especialista.</div>
                         </a>
                         <a href="#/patient/estudio" class="action-card action-card--estudio">
-                            <div class="action-icon">🔬</div>
+                            <div class="action-icon" style="padding:0; background:transparent;"><img src="img/icon_estudio.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Estudio"></div>
                             <div style="font-weight: 800; font-size: 19px; margin-top:8px;">Estudios</div>
                             <div class="text-muted" style="font-size:14px; margin-top:4px;">Radiografías, análisis, etc.</div>
                         </a>
                         <a href="#/patient/internacion" class="action-card action-card--internacion">
-                            <div class="action-icon">🏠</div>
+                            <div class="action-icon" style="padding:0; background:transparent;"><img src="img/icon_internacion.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Internacion"></div>
                             <div style="font-weight: 800; font-size: 19px; margin-top:8px;">Internación Domic.</div>
                             <div class="text-muted" style="font-size:14px; margin-top:4px;">Atención en tu hogar.</div>
                         </a>
                         <a href="#/patient/salud" class="action-card action-card--salud">
-                            <div class="action-icon">📊</div>
+                            <div class="action-icon" style="padding:0; background:transparent;"><img src="img/icon_salud.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Salud"></div>
                             <div style="font-weight: 800; font-size: 19px; margin-top:8px;">Mi Salud</div>
                             <div class="text-muted" style="font-size:14px; margin-top:4px;">Presión, peso y glucemia.</div>
                         </a>
