@@ -311,6 +311,7 @@
           <div class="tabs mb-2">
             <button class="tab ${activeTab === 'config' ? 'tab--active' : ''}" data-tab="config">⚙️ Configuración</button>
             <button class="tab ${activeTab === 'week' ? 'tab--active' : ''}" data-tab="week">📆 Agenda de la semana</button>
+            <button class="tab ${activeTab === 'blocked' ? 'tab--active' : ''}" data-tab="blocked">🚫 Bloquear Días</button>
           </div>
 
           <div id="sched-content"></div>
@@ -325,7 +326,8 @@
 
       const content = container.querySelector('#sched-content');
       if (activeTab === 'config') renderScheduleConfig(content, doc, schedule, duration);
-      else renderScheduleWeek(content, doc);
+      else if (activeTab === 'week') renderScheduleWeek(content, doc);
+      else renderScheduleBlocked(content, doc);
     }
 
     render();
@@ -450,6 +452,72 @@
     });
   }
 
+  function renderScheduleBlocked(content, doc) {
+    function draw() {
+      const blockedDates = _storage().getBlockedDates(doc.dni).sort();
+      const html = `
+        <div class="card card-glass fade-in" style="text-align:left;">
+          <div class="card-body">
+            <h3 style="margin-bottom:1rem; font-weight:800; font-size: 20px;">🚫 Suspender Agenda / Cancelar Días</h3>
+            <p class="text-muted" style="font-size:15px; margin-bottom: 20px;">
+              Seleccioná un día específico en el que no vayas a atender. Los pacientes no podrán reservar turnos en esa fecha.
+            </p>
+
+            <div class="form-group" style="display:flex; gap: 1rem; align-items: flex-end; margin-bottom: 24px;">
+              <div style="flex: 1;">
+                <label class="form-label" for="block-date-input">Fecha a bloquear</label>
+                <input type="date" id="block-date-input" class="form-input" min="${todayISO()}" />
+              </div>
+              <button class="btn btn-danger" id="btn-block-date" style="height: 56px; padding: 0 24px;">BLOQUEAR FECHA</button>
+            </div>
+
+            <h4 style="font-weight:800; font-size:18px; margin-bottom:12px;">Fechas bloqueadas actualmente:</h4>
+            ${blockedDates.length === 0
+              ? '<p class="text-muted" style="font-size:16px;">No tenés fechas bloqueadas.</p>'
+              : `
+                <div style="display:flex; flex-direction:column; gap: 8px;">
+                  ${blockedDates.map(date => `
+                    <div class="flex-between card" style="padding: 12px 20px; background: rgba(0,0,0,0.01); border-radius: 8px; box-shadow: var(--shadow-sm);">
+                      <span style="font-weight: 700; font-size: 17px;">🚫 ${formatDate(date)}</span>
+                      <button class="btn btn-outline btn-unlock-date" data-date="${date}" style="height: 38px; padding: 0 16px; border-radius: 8px; color: var(--danger); border-color: var(--danger);">
+                        Desbloquear
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+              `
+            }
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = html;
+
+      // Add block action
+      content.querySelector('#btn-block-date').addEventListener('click', () => {
+        const dateInput = content.querySelector('#block-date-input');
+        const dateVal = dateInput.value;
+        if (!dateVal) { _app().showToast('Seleccioná una fecha válida', 'error'); return; }
+
+        _storage().saveBlockedDate(doc.dni, dateVal);
+        _app().showToast('Fecha bloqueada con éxito', 'success');
+        draw();
+      });
+
+      // Add unblock actions
+      content.querySelectorAll('.btn-unlock-date').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const dateVal = btn.dataset.date;
+          _storage().removeBlockedDate(doc.dni, dateVal);
+          _app().showToast('Fecha desbloqueada', 'info');
+          draw();
+        });
+      });
+    }
+
+    draw();
+  }
+
   // ──────────────────────────────────────────────────────────────────────────
   // renderPatients
   // ──────────────────────────────────────────────────────────────────────────
@@ -466,6 +534,14 @@
     const dniSet = new Set();
     allAppts.forEach(a => dniSet.add(a.patientDni));
     allRequests.forEach(r => dniSet.add(r.patientDni));
+    
+    // Also include patients that have medical records written by this doctor
+    _storage().getPatients().forEach(p => {
+      const records = _storage().getRecords(p.dni);
+      if (records.some(rec => rec.doctorDni === doc.dni)) {
+        dniSet.add(p.dni);
+      }
+    });
 
     const patients = [...dniSet].map(dni => _storage().getPatient(dni)).filter(Boolean);
 

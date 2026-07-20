@@ -228,6 +228,14 @@
                         return;
                     }
 
+                    // Check if the specific date is blocked by the doctor
+                    const blockedDates = window.HolaDocStorage.getBlockedDates(selectedDoctor.dni);
+                    if (blockedDates.includes(dateVal)) {
+                        errorDiv.textContent = `${selectedDoctor.name} no atenderá en esta fecha específica (agenda cancelada/bloqueada). Por favor, seleccioná otra fecha.`;
+                        errorDiv.classList.remove('hidden');
+                        return;
+                    }
+
                     selectedDate = dateVal;
                     renderStep3(dayKey);
                 });

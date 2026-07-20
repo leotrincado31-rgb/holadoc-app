@@ -217,6 +217,24 @@
             set('notifications', list);
         },
 
+        getBlockedDates(doctorDni) {
+            const list = get('blocked_dates');
+            return list.filter(b => b.doctorDni === doctorDni).map(b => b.date);
+        },
+
+        saveBlockedDate(doctorDni, date) {
+            const list = get('blocked_dates');
+            if (list.some(b => b.doctorDni === doctorDni && b.date === date)) return;
+            list.push({ doctorDni, date });
+            set('blocked_dates', list);
+        },
+
+        removeBlockedDate(doctorDni, date) {
+            let list = get('blocked_dates');
+            list = list.filter(b => !(b.doctorDni === doctorDni && b.date === date));
+            set('blocked_dates', list);
+        },
+
         generateId(prefix) {
             return prefix + '_' + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
         },
