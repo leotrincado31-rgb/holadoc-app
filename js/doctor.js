@@ -256,7 +256,7 @@
           ${recentReqs.length === 0
             ? '<p class="text-muted">Sin solicitudes pendientes 🎉</p>'
             : `<div class="stagger-children">${recentReqs.map(r => `
-                <div class="list-item card mb-1">
+                <div class="list-item card mb-1 dash-req-link" data-dni="${r.patientDni}" style="cursor:pointer">
                   <div class="list-item-content flex-between">
                     <div>
                       <span style="margin-right:.35rem">${getRequestTypeIcon(r.type)}</span>
@@ -277,6 +277,9 @@
 
     // Events
     container.querySelectorAll('.dash-patient-link').forEach(link => {
+      link.addEventListener('click', () => _app().navigate(`#/doctor/paciente/${link.dataset.dni}`));
+    });
+    container.querySelectorAll('.dash-req-link').forEach(link => {
       link.addEventListener('click', () => _app().navigate(`#/doctor/paciente/${link.dataset.dni}`));
     });
     const verTodas = container.querySelector('#dash-ver-todas');
