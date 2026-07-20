@@ -923,7 +923,7 @@
             ✒️ Dr. ${escapeHtml(doc.name)} — Mat. ${escapeHtml(doc.matricula || '—')}
           </div>
 
-          <button class="btn btn-success btn-lg btn-block" id="presc-emit">📋 EMITIR RECETA</button>
+          <button class="btn btn-success btn-lg btn-block" id="presc-emit">📋 CONFIRMAR RECETA</button>
         </div>
       </div>`;
 
@@ -951,14 +951,19 @@
         }
       });
 
+      const isPami = (pat.obraSocial || '').toUpperCase().includes('PAMI');
+      const notifMessage = isPami
+        ? `Su receta se realizó con éxito, acerquese a su farmacia de confianza ( para pacientes PAMI de red pami habilitadas )`
+        : `Su receta se realizó con éxito. Ya podés ver los detalles e indicaciones en la app.`;
+
       _notifications().createNotification(
         pat.dni, 'patient', 'receta',
-        'Tu receta está lista',
-        `El Dr. ${doc.name} emitió tu receta. Revisá los detalles en la app.`,
+        'Receta lista con éxito',
+        notifMessage,
         req.id
       );
 
-      _app().showToast('Receta emitida correctamente', 'success');
+      _app().showToast('Receta confirmada correctamente', 'success');
       overlay.remove();
       refreshFn();
     });
