@@ -277,13 +277,13 @@
 
     // Events
     container.querySelectorAll('.dash-patient-link').forEach(link => {
-      link.addEventListener('click', () => _app().navigate(`#/doctor/paciente/${link.dataset.dni}`));
+      link.addEventListener('click', () => _app().navigate(`/doctor/paciente/${link.dataset.dni}`));
     });
     container.querySelectorAll('.dash-req-link').forEach(link => {
-      link.addEventListener('click', () => _app().navigate(`#/doctor/paciente/${link.dataset.dni}`));
+      link.addEventListener('click', () => _app().navigate(`/doctor/paciente/${link.dataset.dni}`));
     });
     const verTodas = container.querySelector('#dash-ver-todas');
-    if (verTodas) verTodas.addEventListener('click', () => _app().navigate('#/doctor/solicitudes'));
+    if (verTodas) verTodas.addEventListener('click', () => _app().navigate('/doctor/solicitudes'));
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -318,7 +318,7 @@
 
       container.innerHTML = html;
 
-      container.querySelector('#sched-back').addEventListener('click', () => _app().navigate('#/doctor'));
+      container.querySelector('#sched-back').addEventListener('click', () => _app().navigate('/doctor'));
       container.querySelectorAll('.tab').forEach(t => {
         t.addEventListener('click', () => { activeTab = t.dataset.tab; render(); });
       });
@@ -446,7 +446,7 @@
     content.innerHTML = html;
 
     content.querySelectorAll('.week-slot').forEach(slot => {
-      slot.addEventListener('click', () => _app().navigate(`#/doctor/paciente/${slot.dataset.dni}`));
+      slot.addEventListener('click', () => _app().navigate(`/doctor/paciente/${slot.dataset.dni}`));
     });
   }
 
@@ -519,7 +519,7 @@
         search.addEventListener('input', () => renderList(search.value));
       }
       container.querySelectorAll('.pat-card').forEach(card => {
-        card.addEventListener('click', () => _app().navigate(`#/doctor/paciente/${card.dataset.dni}`));
+        card.addEventListener('click', () => _app().navigate(`/doctor/paciente/${card.dataset.dni}`));
       });
     }
 
@@ -578,7 +578,7 @@
 
       container.innerHTML = html;
 
-      container.querySelector('#pd-back').addEventListener('click', () => _app().navigate('#/doctor/pacientes'));
+      container.querySelector('#pd-back').addEventListener('click', () => _app().navigate('/doctor/pacientes'));
       container.querySelectorAll('.tab').forEach(t => {
         t.addEventListener('click', () => { activeTab = t.dataset.tab; render(); });
       });
