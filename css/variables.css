@@ -8,13 +8,13 @@
   /* -------------------------------------------------------
      COLOR — Brand Principal (Rojo Apicona)
      ------------------------------------------------------- */
-  --primary:          #E8291C;
-  --primary-dark:     #C41E12;
-  --primary-light:    #FF4A3D;
-  --primary-lightest: #FFF0EF;
+  --primary:          #034C81;
+  --primary-dark:     #023A63;
+  --primary-light:    #0369A1;
+  --primary-lightest: #EFF6FF;
 
   /* Mantiene compatibilidad con código existente */
-  --primary-lighter:  #FF6B61;
+  --primary-lighter:  #60A5FA;
 
   /* -------------------------------------------------------
      COLOR — Dark Surfaces (Negro Apicona)
@@ -78,7 +78,7 @@
   --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.12);
   --shadow-lg:  0 8px 32px rgba(0, 0, 0, 0.14);
   --shadow-xl:  0 16px 48px rgba(0, 0, 0, 0.18);
-  --shadow-3d:  0 8px 32px rgba(232, 41, 28, 0.18);
+  --shadow-3d:  0 8px 32px rgba(3, 76, 129, 0.18);
   --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
 

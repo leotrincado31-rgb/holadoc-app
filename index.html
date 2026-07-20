@@ -16,24 +16,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E8291C'/><text y='.85em' font-size='70' x='15'>🏥</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23034C81'/><text y='.85em' font-size='70' x='15'>🏥</text></svg>">
 
-    <!-- Stylesheets — v3 Apicona -->
-    <link rel="stylesheet" href="css/variables.css?v=3">
-    <link rel="stylesheet" href="css/base.css?v=3">
-    <link rel="stylesheet" href="css/components.css?v=3">
-    <link rel="stylesheet" href="css/layout.css?v=3">
-    <link rel="stylesheet" href="css/animations.css?v=3">
-    <link rel="stylesheet" href="css/responsive.css?v=3">
+    <!-- Stylesheets — v4 Apicona Azul -->
+    <link rel="stylesheet" href="css/variables.css?v=4">
+    <link rel="stylesheet" href="css/base.css?v=4">
+    <link rel="stylesheet" href="css/components.css?v=4">
+    <link rel="stylesheet" href="css/layout.css?v=4">
+    <link rel="stylesheet" href="css/animations.css?v=4">
+    <link rel="stylesheet" href="css/responsive.css?v=4">
 
     <style>
-      /* === APICONA PALETTE OVERRIDE (garantiza rojo aunque haya caché vieja) === */
+      /* === APICONA PALETTE OVERRIDE — AZUL MÉDICO === */
       :root {
-        --primary:          #E8291C !important;
-        --primary-dark:     #C41E12 !important;
-        --primary-light:    #FF4A3D !important;
-        --primary-lightest: #FFF0EF !important;
-        --primary-lighter:  #FF6B61 !important;
+        --primary:          #034C81 !important;
+        --primary-dark:     #023A63 !important;
+        --primary-light:    #0369A1 !important;
+        --primary-lightest: #EFF6FF !important;
+        --primary-lighter:  #60A5FA !important;
         --dark-bg:          #1E1E1E !important;
         --dark-surface:     #2A2A2A !important;
         --bg-primary:       #F5F5F5 !important;
@@ -44,6 +44,7 @@
         --text-inverse:     #FFFFFF !important;
         --border-light:     #E0E0E0 !important;
         --shadow-card:      0 2px 12px rgba(0,0,0,0.08) !important;
+        --shadow-3d:        0 8px 32px rgba(3,76,129,0.18) !important;
         --font-family:      'Poppins', 'Roboto', sans-serif !important;
         --radius-sm:        4px !important;
         --radius-md:        6px !important;
@@ -52,15 +53,15 @@
         --bottom-nav-height:68px !important;
         --topbar-height:    40px !important;
       }
-      /* Botones primarios ROJO (override de caché) */
+      /* Botones primarios AZUL MÉDICO */
       .btn-primary {
-        background: #E8291C !important;
-        border-color: #E8291C !important;
+        background: #034C81 !important;
+        border-color: #034C81 !important;
         color: #fff !important;
       }
       .btn-primary:hover {
-        background: #C41E12 !important;
-        border-color: #C41E12 !important;
+        background: #023A63 !important;
+        border-color: #023A63 !important;
       }
       .btn-outline-dark {
         background: transparent !important;
@@ -73,17 +74,35 @@
       }
       .btn-outline {
         background: transparent !important;
-        color: #E8291C !important;
-        border: 2px solid #E8291C !important;
+        color: #034C81 !important;
+        border: 2px solid #034C81 !important;
       }
-      /* Links — no azul */
-      a { color: #E8291C; }
-      a:hover { color: #C41E12; }
-      /* Tabs activos — rojo */
-      .tab-btn.active { color: #E8291C !important; border-bottom-color: #E8291C !important; }
+      .btn-outline:hover {
+        background: #034C81 !important;
+        color: #fff !important;
+      }
+      /* Links — azul médico */
+      a { color: #034C81; }
+      a:hover { color: #023A63; }
+      /* Tabs activos */
+      .tab-btn.active { color: #034C81 !important; border-bottom-color: #034C81 !important; }
+      /* Bottom nav activo */
       .bottom-nav-item.active .bottom-nav-icon,
-      .bottom-nav-item.active .bottom-nav-label { color: #E8291C !important; }
-      .bottom-nav-item.active::before { background: #E8291C !important; }
+      .bottom-nav-item.active .bottom-nav-label { color: #034C81 !important; }
+      .bottom-nav-item.active::before { background: #034C81 !important; }
+      /* Hero title em */
+      .hero-title em { color: #60A5FA !important; }
+      /* Hero label */
+      .hero-label { color: #60A5FA !important; }
+      /* Section label */
+      .section-label { color: #034C81 !important; }
+      /* About badge */
+      .about-badge { background: #034C81 !important; }
+      /* Stat num */
+      .stat-num { color: #034C81 !important; }
+      /* Footer logo em */
+      .footer-logo em { color: #60A5FA !important; }
+      .logo-text span { color: #034C81 !important; }
       /* Initial loader */
       .loading-overlay {
         position: fixed; inset: 0;
