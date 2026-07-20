@@ -636,6 +636,69 @@
                             </div>
                         `}
                     </div>
+
+                    <!-- Historia Clínica Section -->
+                    <div class="section mt-3">
+                        <h2 class="section-title">📋 Mi Historia Clínica</h2>
+                        ${window.HolaDocStorage.getRecords(user.dni).length === 0 ? `
+                            <div class="card text-center"><p class="text-muted">Aún no tenés consultas médicas registradas en tu historia clínica.</p></div>
+                        ` : `
+                            <div class="timeline">
+                                ${window.HolaDocStorage.getRecords(user.dni).map(r => {
+                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                    const docName = doc ? doc.name : 'Médico General';
+                                    return `
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">${new Date(r.date).toLocaleDateString('es-AR', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
+                                            <div class="card" style="text-align:left; margin-top:8px;">
+                                                <h3 style="font-weight:800; font-size:18px; margin:0 0 12px 0; color:var(--primary);">Atendido por: ${docName}</h3>
+                                                
+                                                <div style="margin-top:12px; margin-bottom:8px;">
+                                                    <b style="font-size:16px;">📋 Motivo de Consulta:</b>
+                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.reason}</p>
+                                                </div>
+
+                                                ${r.pathologicalHistory ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">🏥 Antecedentes Patológicos:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.pathologicalHistory}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.surgicalHistory ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">🔪 Antecedentes Quirúrgicos:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.surgicalHistory}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.currentMedication ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">💊 Medicación Actual:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.currentMedication}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.nextObjectives ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">🎯 Objetivos para próxima consulta:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.nextObjectives}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.notes ? `
+                                                    <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--bg-secondary);">
+                                                        <b style="font-size:16px;">📝 Indicaciones/Notas Médicas:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.notes}</p>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `}
+                    </div>
                 </div>
             `;
 
