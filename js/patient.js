@@ -75,20 +75,32 @@
                         ` : `
                             <div class="card" style="padding: 0; overflow: hidden;">
                                 ${requests.map(r => {
-                                    let icon = '📋';
+                                    let icon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
                                     let typeName = 'Solicitud';
-                                    if (r.type === 'receta') { icon = '💊'; typeName = 'Receta Médica'; }
-                                    else if (r.type === 'derivacion') { icon = '🔄'; typeName = 'Derivación'; }
-                                    else if (r.type === 'estudio') { icon = '🔬'; typeName = 'Estudio de Imagen/Lab'; }
-                                    else if (r.type === 'internacion') { icon = '🏠'; typeName = 'Internación Domiciliaria'; }
+                                    if (r.type === 'receta') { 
+                                        icon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;color:var(--primary);"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`; 
+                                        typeName = 'Receta Médica'; 
+                                    }
+                                    else if (r.type === 'derivacion') { 
+                                        icon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;color:var(--primary);"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`; 
+                                        typeName = 'Derivación'; 
+                                    }
+                                    else if (r.type === 'estudio') { 
+                                        icon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;color:var(--primary);"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`; 
+                                        typeName = 'Estudio de Imagen/Lab'; 
+                                    }
+                                    else if (r.type === 'internacion') { 
+                                        icon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;color:var(--primary);"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`; 
+                                        typeName = 'Internación Domiciliaria'; 
+                                    }
 
                                     const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
                                     const docName = doc ? doc.name : 'Médico General';
                                     const dateStr = new Date(r.createdAt).toLocaleDateString('es-AR');
 
                                     return `
-                                        <a href="#/patient/solicitud/${r.id}" class="list-item" style="text-decoration:none; color:inherit; border-bottom:1px solid var(--bg-secondary); padding: 16px 20px;">
-                                            <span style="font-size: 24px;">${icon}</span>
+                                        <a href="#/patient/solicitud/${r.id}" class="list-item" style="text-decoration:none; color:inherit; border-bottom:1px solid var(--bg-secondary); padding: 16px 20px; display:flex; align-items:center; gap:12px;">
+                                            <span>${icon}</span>
                                             <div class="list-item-content">
                                                 <div class="list-item-title" style="font-size:18px; font-weight:700;">${typeName}</div>
                                                 <div class="list-item-subtitle" style="font-size:15px; color:var(--text-secondary); margin-top:2px;">${docName} — ${dateStr}</div>

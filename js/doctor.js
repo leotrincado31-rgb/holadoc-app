@@ -97,8 +97,13 @@
   }
 
   function getRequestTypeIcon(type) {
-    const map = { receta:'💊', derivacion:'🔄', estudio:'🔬', internacion:'🏥' };
-    return map[type] || '📋';
+    const map = {
+      receta: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+      derivacion: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`,
+      estudio: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+      internacion: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`
+    };
+    return map[type] || `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
   }
 
   function getStatusLabel(status) {
@@ -197,28 +202,40 @@
       <div class="page-enter">
         <!-- Welcome -->
         <div class="mb-3">
-          <h1 class="page-title">⚕️ Hola, Dr./Dra. ${escapeHtml(doc.name)}</h1>
+          <h1 class="page-title" style="display:flex;align-items:center;gap:10px;">
+            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path></svg>
+            Hola, Dr./Dra. ${escapeHtml(doc.name)}
+          </h1>
           <p class="page-subtitle">${formatDateLong()}</p>
         </div>
 
         <!-- Stats -->
         <div class="grid grid-3 mb-3 stagger-children">
-          <div class="card card-3d" style="border-left:4px solid var(--color-primary, #3b82f6)">
-            <div class="card-body text-center">
-              <div style="font-size:2.2rem;font-weight:800">${todaySorted.length}</div>
-              <div class="text-muted">📅 Turnos hoy</div>
+          <div class="card card-3d" style="border-left:4px solid var(--primary); display:flex; align-items:center; gap:16px; padding:20px;">
+            <div style="width:52px;height:52px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0;">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <div>
+              <div style="font-size:1.8rem;font-weight:800;line-height:1.2;color:#1A1A1A;">${todaySorted.length}</div>
+              <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Turnos hoy</div>
             </div>
           </div>
-          <div class="card card-3d" style="border-left:4px solid var(--color-warning, #f59e0b)">
-            <div class="card-body text-center">
-              <div style="font-size:2.2rem;font-weight:800">${allRequests.length}</div>
-              <div class="text-muted">📋 Solicitudes pendientes</div>
+          <div class="card card-3d" style="border-left:4px solid var(--warning); display:flex; align-items:center; gap:16px; padding:20px;">
+            <div style="width:52px;height:52px;background:#FFFBEB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--warning);flex-shrink:0;">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div>
+              <div style="font-size:1.8rem;font-weight:800;line-height:1.2;color:#1A1A1A;">${allRequests.length}</div>
+              <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Pendientes</div>
             </div>
           </div>
-          <div class="card card-3d" style="border-left:4px solid var(--color-success, #14b8a6)">
-            <div class="card-body text-center">
-              <div style="font-size:2.2rem;font-weight:800">${patientDnis.size}</div>
-              <div class="text-muted">👥 Pacientes activos</div>
+          <div class="card card-3d" style="border-left:4px solid var(--success); display:flex; align-items:center; gap:16px; padding:20px;">
+            <div style="width:52px;height:52px;background:#DCFCE7;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--success);flex-shrink:0;">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div>
+              <div style="font-size:1.8rem;font-weight:800;line-height:1.2;color:#1A1A1A;">${patientDnis.size}</div>
+              <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Pacientes</div>
             </div>
           </div>
         </div>
@@ -632,10 +649,10 @@
               <div class="avatar avatar-lg">${getInitials(pat.name)}</div>
               <div style="flex:1;min-width:200px">
                 <h2 style="margin:0 0 .25rem">${escapeHtml(pat.name)}</h2>
-                <div class="text-muted" style="line-height:1.7">
-                  🪪 DNI: <strong>${escapeHtml(pat.dni)}</strong><br/>
-                  🏥 Obra Social: <strong>${escapeHtml(pat.obraSocial || '—')}</strong> · Nro: <strong>${escapeHtml(pat.nroAfiliado || '—')}</strong><br/>
-                  📞 ${escapeHtml(pat.phone || '—')} · 🎂 ${formatDate(pat.birthDate)} (${age} años)
+                <div class="text-muted" style="line-height:1.7;display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+                  <span style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><circle cx="12" cy="10" r="3"></circle><path d="M12 13c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"></path></svg> DNI: <strong>${escapeHtml(pat.dni)}</strong></span>
+                  <span style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Obra Social: <strong>${escapeHtml(pat.obraSocial || '—')}</strong> · Nro: <strong>${escapeHtml(pat.nroAfiliado || '—')}</strong></span>
+                  <span style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> ${escapeHtml(pat.phone || '—')} · 🎂 ${formatDate(pat.birthDate)} (${age} años)</span>
                 </div>
               </div>
             </div>
@@ -643,10 +660,10 @@
 
           <!-- Tabs -->
           <div class="tabs mb-2">
-            <button class="tab ${activeTab === 'historia' ? 'tab--active' : ''}" data-tab="historia">📋 Historia Clínica</button>
-            <button class="tab ${activeTab === 'indicadores' ? 'tab--active' : ''}" data-tab="indicadores">📊 Indicadores</button>
-            <button class="tab ${activeTab === 'solicitudes' ? 'tab--active' : ''}" data-tab="solicitudes">📝 Solicitudes</button>
-            <button class="tab ${activeTab === 'turnos' ? 'tab--active' : ''}" data-tab="turnos">📅 Turnos</button>
+            <button class="tab ${activeTab === 'historia' ? 'tab--active' : ''}" data-tab="historia" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Historia Clínica</button>
+            <button class="tab ${activeTab === 'indicadores' ? 'tab--active' : ''}" data-tab="indicadores" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Indicadores</button>
+            <button class="tab ${activeTab === 'solicitudes' ? 'tab--active' : ''}" data-tab="solicitudes" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg> Solicitudes</button>
+            <button class="tab ${activeTab === 'turnos' ? 'tab--active' : ''}" data-tab="turnos" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Turnos</button>
           </div>
 
           <div id="pd-tab-content"></div>
@@ -1250,14 +1267,17 @@
 
       const html = `
         <div class="page-enter">
-          <h1 class="page-title mb-2">📋 Solicitudes Pendientes</h1>
+          <h1 class="page-title mb-2" style="display:flex;align-items:center;gap:10px;">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Solicitudes Pendientes
+          </h1>
 
           <div class="tabs mb-2" style="flex-wrap:wrap">
-            <button class="tab ${filterType === 'todas' ? 'tab--active' : ''}" data-filter="todas">Todas <span class="badge">${pending.length}</span></button>
-            <button class="tab ${filterType === 'receta' ? 'tab--active' : ''}" data-filter="receta">💊 Recetas <span class="badge">${countReceta}</span></button>
-            <button class="tab ${filterType === 'derivacion' ? 'tab--active' : ''}" data-filter="derivacion">🔄 Derivaciones <span class="badge">${countDerivacion}</span></button>
-            <button class="tab ${filterType === 'estudio' ? 'tab--active' : ''}" data-filter="estudio">🔬 Estudios <span class="badge">${countEstudio}</span></button>
-            <button class="tab ${filterType === 'internacion' ? 'tab--active' : ''}" data-filter="internacion">🏥 Internación <span class="badge">${countInternacion}</span></button>
+            <button class="tab ${filterType === 'todas' ? 'tab--active' : ''}" data-filter="todas" style="display:inline-flex;align-items:center;gap:6px;">Todas <span class="badge">${pending.length}</span></button>
+            <button class="tab ${filterType === 'receta' ? 'tab--active' : ''}" data-filter="receta" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Recetas <span class="badge">${countReceta}</span></button>
+            <button class="tab ${filterType === 'derivacion' ? 'tab--active' : ''}" data-filter="derivacion" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Derivaciones <span class="badge">${countDerivacion}</span></button>
+            <button class="tab ${filterType === 'estudio' ? 'tab--active' : ''}" data-filter="estudio" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estudios <span class="badge">${countEstudio}</span></button>
+            <button class="tab ${filterType === 'internacion' ? 'tab--active' : ''}" data-filter="internacion" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Internación <span class="badge">${countInternacion}</span></button>
           </div>
 
           <!-- Pending Requests -->
