@@ -36,7 +36,7 @@
         const items = [
             { route: '#/patient', icon: '🏠', label: 'Inicio', key: '/patient' },
             { route: '#/patient/salud', icon: '📊', label: 'Salud', key: '/patient/salud' },
-            { route: '#/patient/historia', icon: '📋', label: 'Historia', key: '/patient/historia' },
+            { route: '#/patient/historia', icon: '📋', label: 'Solicitudes', key: '/patient/historia' },
             { route: '#/patient/notificaciones', icon: '🔔', label: 'Alertas', key: '/patient/notificaciones' },
         ];
         return items.map(item => {

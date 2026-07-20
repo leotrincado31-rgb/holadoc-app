@@ -672,80 +672,177 @@
             if (!user) return;
 
             const records = window.HolaDocStorage.getRecords(user.dni);
+            const requests = window.HolaDocStorage.getRequests({ patientDni: user.dni });
 
-            container.innerHTML = `
-                <div class="page-enter">
-                    <div class="page-header">
-                        <a href="#/patient" class="page-back">← Volver</a>
-                        <h1 class="page-title">Mi Historia Clínica</h1>
-                        <p class="page-subtitle">Consultas y diagnósticos registrados por tus médicos</p>
-                    </div>
+            function renderTabs(activeTab) {
+                let tabContent = '';
 
-                    ${records.length === 0 ? `
-                        <div class="card text-center" style="padding: 48px 24px;">
-                            <div style="font-size:64px; margin-bottom:16px;">📋</div>
-                            <h3 class="empty-state-title">Sin consultas registradas</h3>
-                            <p class="text-muted">Aún no tenés consultas cargadas en el sistema por tus médicos.</p>
-                        </div>
-                    ` : `
-                        <div class="timeline">
-                            ${records.map(r => {
-                                const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
-                                const docName = doc ? doc.name : 'Médico General';
-                                return `
-                                    <div class="timeline-item">
-                                        <div class="timeline-date">${new Date(r.date).toLocaleDateString('es-AR', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
-                                        <div class="card" style="text-align:left; margin-top:8px;">
-                                            <h3 style="font-weight:800; font-size:18px; margin:0 0 12px 0; color:var(--primary);">Atendido por: ${docName}</h3>
-                                            
-                                            <div style="margin-bottom:8px;">
-                                                <b style="font-size:16px;">📋 Motivo de Consulta:</b>
-                                                <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.reason}</p>
+                if (activeTab === 'requests') {
+                    if (requests.length === 0) {
+                        tabContent = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <h3 class="empty-state-title">No tenés solicitudes cargadas</h3>
+                                <p class="text-muted">Todas las recetas, derivaciones, internaciones y estudios que pidas aparecerán acá.</p>
+                            </div>
+                        `;
+                    } else {
+                        tabContent = `
+                            <div class="grid" style="gap:16px;">
+                                ${requests.map(r => {
+                                    let icon = '📋';
+                                    let typeName = 'Solicitud';
+                                    let detailsPreview = '';
+                                    
+                                    if (r.type === 'receta') { 
+                                        icon = '💊'; 
+                                        typeName = 'Receta Médica'; 
+                                        detailsPreview = r.details.medications;
+                                    } else if (r.type === 'derivacion') { 
+                                        icon = '🔄'; 
+                                        typeName = 'Derivación Especialista'; 
+                                        detailsPreview = `Derivación a: ${r.details.specialty}`;
+                                    } else if (r.type === 'estudio') { 
+                                        icon = '🔬'; 
+                                        typeName = 'Estudio de Imagen/Lab'; 
+                                        detailsPreview = `${r.details.studyType} - ${r.details.details}`;
+                                    } else if (r.type === 'internacion') { 
+                                        icon = '🏠'; 
+                                        typeName = 'Internación Domiciliaria'; 
+                                        detailsPreview = `Dirección: ${r.details.address}`;
+                                    }
+
+                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                    const docName = doc ? doc.name : 'Médico General';
+                                    const dateStr = new Date(r.createdAt).toLocaleDateString('es-AR');
+
+                                    return `
+                                        <div class="card card-3d" style="text-align:left; border-left:6px solid var(${r.status === 'completada' ? '--accent' : r.status === 'rechazada' ? '--danger' : '--warning'});">
+                                            <div class="flex-between mb-1">
+                                                <div class="flex gap-2" style="align-items:center;">
+                                                    <span style="font-size:28px;">${icon}</span>
+                                                    <div>
+                                                        <h3 style="font-weight:800; font-size:18px; margin:0;">${typeName}</h3>
+                                                        <span class="text-muted" style="font-size:14px;">Solicitado a: ${docName}</span>
+                                                    </div>
+                                                </div>
+                                                <span class="badge badge-${r.status}">
+                                                    ${r.status === 'pendiente' ? 'Pendiente' : ''}
+                                                    ${r.status === 'en_proceso' ? 'En Proceso' : ''}
+                                                    ${r.status === 'completada' ? 'Listo / Firmado' : ''}
+                                                    ${r.status === 'rechazada' ? 'Rechazado' : ''}
+                                                </span>
                                             </div>
-
-                                            ${r.pathologicalHistory ? `
-                                                <div style="margin-bottom:8px;">
-                                                    <b style="font-size:16px;">🏥 Antecedentes Patológicos:</b>
-                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.pathologicalHistory}</p>
-                                                </div>
-                                            ` : ''}
-
-                                            ${r.surgicalHistory ? `
-                                                <div style="margin-bottom:8px;">
-                                                    <b style="font-size:16px;">🔪 Antecedentes Quirúrgicos:</b>
-                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.surgicalHistory}</p>
-                                                </div>
-                                            ` : ''}
-
-                                            ${r.currentMedication ? `
-                                                <div style="margin-bottom:8px;">
-                                                    <b style="font-size:16px;">💊 Medicación Actual:</b>
-                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.currentMedication}</p>
-                                                </div>
-                                            ` : ''}
-
-                                            ${r.nextObjectives ? `
-                                                <div style="margin-bottom:8px;">
-                                                    <b style="font-size:16px;">🎯 Objetivos para próxima consulta:</b>
-                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.nextObjectives}</p>
-                                                </div>
-                                            ` : ''}
-
-                                            ${r.notes ? `
-                                                <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--bg-secondary);">
-                                                    <b style="font-size:16px;">📝 Indicaciones/Notas Médicas:</b>
-                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.notes}</p>
-                                                </div>
-                                            ` : ''}
+                                            <p style="font-size:16px; margin:8px 0; color:var(--text-secondary); background:rgba(0,0,0,0.01); padding:8px 12px; border-radius:6px;">
+                                                <b>Pedido:</b> ${detailsPreview}
+                                            </p>
+                                            <div class="flex-between mt-2" style="font-size:14px; border-top:1px solid var(--bg-secondary); padding-top:8px;">
+                                                <span class="text-muted">Fecha: ${dateStr}</span>
+                                                <a href="#/patient/solicitud/${r.id}" class="btn btn-outline" style="height:36px; padding:0 12px; font-size:14px; border-radius:8px;">Ver receta / detalle</a>
+                                            </div>
                                         </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (records.length === 0) {
+                        tabContent = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <h3 class="empty-state-title">Sin consultas registradas</h3>
+                                <p class="text-muted">Tu médico completará tu historia clínica cuando asistas a una consulta.</p>
+                            </div>
+                        `;
+                    } else {
+                        tabContent = `
+                            <div class="timeline">
+                                ${records.map(r => {
+                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                    const docName = doc ? doc.name : 'Médico General';
+                                    return `
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">${new Date(r.date).toLocaleDateString('es-AR', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
+                                            <div class="card" style="text-align:left; margin-top:8px;">
+                                                <h3 style="font-weight:800; font-size:18px; margin:0 0 12px 0; color:var(--primary);">Atendido por: ${docName}</h3>
+                                                
+                                                <div style="margin-bottom:8px;">
+                                                    <b style="font-size:16px;">📋 Motivo de Consulta:</b>
+                                                    <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.reason}</p>
+                                                </div>
+
+                                                ${r.pathologicalHistory ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">🏥 Antecedentes Patológicos:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.pathologicalHistory}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.surgicalHistory ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">🔪 Antecedentes Quirúrgicos:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.surgicalHistory}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.currentMedication ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">💊 Medicación Actual:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.currentMedication}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.nextObjectives ? `
+                                                    <div style="margin-bottom:8px;">
+                                                        <b style="font-size:16px;">🎯 Objetivos para próxima consulta:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.nextObjectives}</p>
+                                                    </div>
+                                                ` : ''}
+
+                                                ${r.notes ? `
+                                                    <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--bg-secondary);">
+                                                        <b style="font-size:16px;">📝 Indicaciones/Notas Médicas:</b>
+                                                        <p style="margin:4px 0 0 0; font-size:16px; color:var(--text-secondary);">${r.notes}</p>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    }
+                }
+
+                container.innerHTML = `
+                    <div class="page-enter">
+                        <div class="page-header">
+                            <a href="#/patient" class="page-back">← Volver al inicio</a>
+                            <h1 class="page-title">Mis Solicitudes y HC</h1>
+                            <p class="page-subtitle">Seguí el estado de tus pedidos y consultá tu historia clínica</p>
                         </div>
-                    `}
-                </div>
-            `;
+
+                        <!-- Tab controls -->
+                        <div class="tabs">
+                            <div class="tab ${activeTab === 'requests' ? 'tab--active' : ''}" id="tab-btn-requests">📋 Mis Pedidos (${requests.length})</div>
+                            <div class="tab ${activeTab === 'history' ? 'tab--active' : ''}" id="tab-btn-history">⚕️ Historia Clínica (${records.length})</div>
+                        </div>
+
+                        <div id="tab-pane-content">
+                            ${tabContent}
+                        </div>
+                    </div>
+                `;
+
+                // Add listeners to tabs
+                document.getElementById('tab-btn-requests').addEventListener('click', () => renderTabs('requests'));
+                document.getElementById('tab-btn-history').addEventListener('click', () => renderTabs('history'));
+            }
+
+            renderTabs('requests');
         },
+
 
         renderRequestDetail(container, requestId) {
             const user = window.HolaDocStorage.getCurrentUser();
