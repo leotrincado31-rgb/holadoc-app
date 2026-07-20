@@ -2,20 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="HolaDoc! - Gestión de salud simple y directa entre pacientes y médicos. Turnos, recetas, derivaciones y seguimiento remoto.">
-    <meta name="theme-color" content="#034C81">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HolaDoc! — Plataforma de salud digital. Gestioná turnos, recetas digitales, derivaciones e historia clínica de forma rápida y segura.">
+    <meta name="theme-color" content="#E8291C">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>HolaDoc! — Tu salud, más simple</title>
+    <meta property="og:title" content="HolaDoc! — Tu salud, más simple">
+    <meta property="og:description" content="Gestioná turnos, recetas digitales y tu historia clínica desde cualquier dispositivo.">
+    <title>HolaDoc! — Plataforma de Salud Digital</title>
 
-    <!-- Google Fonts - Inter -->
+    <!-- Google Fonts - Poppins (loaded via base.css @import) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Favicon (inline SVG as data URI) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E8291C'/><text y='.85em' font-size='70' x='15'>🏥</text></svg>">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/variables.css">
@@ -24,16 +25,28 @@
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/responsive.css">
+
+    <style>
+      /* Initial loader override */
+      .loading-overlay {
+        position: fixed; inset: 0;
+        background: #1E1E1E;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.4s ease;
+      }
+      .loading-overlay.fade-out { opacity: 0; pointer-events: none; }
+    </style>
 </head>
 <body>
     <!-- Root App Container -->
     <div id="app">
-        <!-- SPA content rendered here by app.js -->
+        <!-- Initial Loader -->
         <div class="loading-overlay" id="initial-loader">
             <div style="text-align:center;">
-                <div style="font-size:64px;margin-bottom:16px;animation:float 2s ease-in-out infinite;">🏥</div>
-                <div class="spinner" style="margin:0 auto 16px;"></div>
-                <p style="font-size:19px;color:#475569;font-weight:500;">Cargando HolaDoc!...</p>
+                <div style="font-size:60px;margin-bottom:20px;">🏥</div>
+                <div style="width:40px;height:40px;border:3px solid rgba(255,255,255,0.15);border-top-color:#E8291C;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px;"></div>
+                <p style="font-size:16px;color:rgba(255,255,255,0.6);font-weight:500;letter-spacing:1px;text-transform:uppercase;font-family:'Poppins',sans-serif;">Cargando HolaDoc!...</p>
             </div>
         </div>
     </div>
@@ -48,5 +61,18 @@
     <script src="js/patient.js"></script>
     <script src="js/doctor.js"></script>
     <script src="js/app.js"></script>
+
+    <script>
+      // Remove loader after app initializes
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var loader = document.getElementById('initial-loader');
+          if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(function() { loader.remove(); }, 400);
+          }
+        }, 600);
+      });
+    </script>
 </body>
 </html>

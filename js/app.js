@@ -35,18 +35,18 @@
     function getPatientNav(activeRoute) {
         const items = [
             { route: '#/patient', icon: '🏠', label: 'Inicio', key: '/patient' },
-            { route: '#/patient/salud', icon: '📊', label: 'Salud', key: '/patient/salud' },
-            { route: '#/patient/historia', icon: '📋', label: 'Solicitudes', key: '/patient/historia' },
+            { route: '#/patient/salud', icon: '📊', label: 'Mi Salud', key: '/patient/salud' },
+            { route: '#/patient/historia', icon: '📋', label: 'Historial', key: '/patient/historia' },
             { route: '#/patient/notificaciones', icon: '🔔', label: 'Alertas', key: '/patient/notificaciones' },
         ];
         return items.map(item => {
             const isActive = activeRoute === item.key;
             const unreadBadge = item.key === '/patient/notificaciones' ? getNotificationBadge() : '';
             return `
-                <a href="${item.route}" class="bottom-nav-item ${isActive ? 'bottom-nav-item--active' : ''}" id="nav-${item.key.replace(/\//g, '-')}">
-                    <span class="nav-icon">${item.icon}${unreadBadge}</span>
-                    <span class="nav-label">${item.label}</span>
-                </a>
+                <button class="bottom-nav-item ${isActive ? 'active' : ''}" data-route="${item.key}" id="nav-${item.key.replace(/\//g, '-')}">
+                    <span class="bottom-nav-icon">${item.icon}${unreadBadge}</span>
+                    <span class="bottom-nav-label">${item.label}</span>
+                </button>
             `;
         }).join('');
     }
@@ -64,10 +64,10 @@
             const isActive = activeRoute === item.key;
             const unreadBadge = item.key === '/doctor/notificaciones' ? getNotificationBadge() : '';
             return `
-                <a href="${item.route}" class="bottom-nav-item ${isActive ? 'bottom-nav-item--active' : ''}" id="nav-${item.key.replace(/\//g, '-')}">
-                    <span class="nav-icon">${item.icon}${unreadBadge}</span>
-                    <span class="nav-label">${item.label}</span>
-                </a>
+                <button class="bottom-nav-item ${isActive ? 'active' : ''}" data-route="${item.key}" id="nav-${item.key.replace(/\//g, '-')}">
+                    <span class="bottom-nav-icon">${item.icon}${unreadBadge}</span>
+                    <span class="bottom-nav-label">${item.label}</span>
+                </button>
             `;
         }).join('');
     }
@@ -99,27 +99,24 @@
         }
 
         const isPatient = user.type === 'patient';
-        const isDoctor = user.type === 'doctor';
-        const baseRoute = route.split('/').slice(0, 3).join('/');
+        const isDoctor  = user.type === 'doctor';
 
         app.innerHTML = `
-            <!-- Top Navbar -->
-            <nav class="navbar" id="main-navbar">
-                <div class="navbar-brand" id="navbar-brand">
-                    <span class="brand-icon">🏥</span>
-                    <span class="brand-text">HolaDoc!</span>
-                </div>
-                <div class="navbar-actions">
-                    <div class="notification-bell" id="navbar-bell">
-                        🔔${getNotificationBadge()}
+            <!-- Panel Header (dark bar) -->
+            <header class="panel-header" id="panel-header">
+                <div class="panel-header-inner">
+                    <div>
+                        <div class="panel-header-logo" id="panel-logo">Hola<em>Doc!</em></div>
+                        <div class="panel-user-name">${isPatient ? '👤 Paciente' : '🩺 Médico'} — ${user.name}</div>
                     </div>
-                    <div class="navbar-user" id="navbar-user">
-                        <div class="avatar" title="${user.name}">
-                            ${getInitials(user.name)}
-                        </div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <button class="panel-logout" id="navbar-bell" title="Notificaciones" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15)">
+                            🔔${getNotificationBadge()}
+                        </button>
+                        <button class="panel-logout" id="btn-logout">Salir</button>
                     </div>
                 </div>
-            </nav>
+            </header>
 
             <!-- Main Content Area -->
             <main class="main-content" id="page-content"></main>
@@ -128,37 +125,20 @@
             <nav class="bottom-nav" id="bottom-nav">
                 ${isPatient ? getPatientNav(route) : getDoctorNav(route)}
             </nav>
-
-            <!-- User Menu Dropdown (hidden by default) -->
-            <div class="user-menu hidden" id="user-menu">
-                <div class="user-menu-header">
-                    <div class="avatar avatar-lg">${getInitials(user.name)}</div>
-                    <div class="user-menu-info">
-                        <div class="user-menu-name">${user.name}</div>
-                        <div class="user-menu-role">${isPatient ? 'Paciente' : 'Médico'}</div>
-                        <div class="user-menu-dni">DNI: ${user.dni}</div>
-                    </div>
-                </div>
-                <div class="user-menu-divider"></div>
-                <button class="user-menu-item" id="btn-logout">
-                    <span>🚪</span> Cerrar Sesión
-                </button>
-            </div>
         `;
 
-        // Attach navbar event listeners
+        // Attach panel event listeners
         setupNavbarListeners(user);
 
         return document.getElementById('page-content');
     }
 
     function setupNavbarListeners(user) {
-        // Brand click -> home
-        const brand = document.getElementById('navbar-brand');
-        if (brand) {
-            brand.addEventListener('click', () => {
-                navigate(user.type === 'patient' ? '/patient' : '/doctor');
-            });
+        // Logo click -> home
+        const logo = document.getElementById('panel-logo');
+        if (logo) {
+            logo.style.cursor = 'pointer';
+            logo.addEventListener('click', () => navigate(user.type === 'patient' ? '/patient' : '/doctor'));
         }
 
         // Bell click -> notifications
@@ -169,16 +149,14 @@
             });
         }
 
-        // User avatar -> toggle menu
-        const userBtn = document.getElementById('navbar-user');
-        const userMenu = document.getElementById('user-menu');
-        if (userBtn && userMenu) {
-            userBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userMenu.classList.toggle('hidden');
-            });
-            document.addEventListener('click', () => {
-                userMenu.classList.add('hidden');
+        // Bottom nav buttons
+        const bottomNav = document.getElementById('bottom-nav');
+        if (bottomNav) {
+            bottomNav.querySelectorAll('.bottom-nav-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const route = btn.dataset.route;
+                    if (route) navigate(route);
+                });
             });
         }
 
@@ -186,12 +164,10 @@
         const logoutBtn = document.getElementById('btn-logout');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
-                if (window.HolaDocNotifications) {
-                    window.HolaDocNotifications.destroy();
-                }
+                if (window.HolaDocNotifications) window.HolaDocNotifications.destroy();
                 window.HolaDocAuth.logout();
                 navigate('/login');
-                showToast('Sesión cerrada', 'info');
+                showToast('Sesión cerrada correctamente', 'info');
             });
         }
     }
@@ -317,68 +293,296 @@
         if (!bottomNav) return;
         const items = bottomNav.querySelectorAll('.bottom-nav-item');
         items.forEach(item => {
-            const href = item.getAttribute('href');
-            const itemRoute = href ? href.replace('#', '') : '';
-            item.classList.toggle('bottom-nav-item--active', itemRoute === route);
+            const itemRoute = item.dataset.route || '';
+            item.classList.toggle('active', itemRoute === route);
         });
     }
 
-    // ── Landing Page ───────────────────────────────────────────
+    // ── Landing Page (Estilo Apicona) ──────────────────────────
     function renderLanding(container) {
         container.innerHTML = `
-            <div class="landing-page">
-                <div class="landing-bg">
-                    <div class="landing-circle landing-circle-1"></div>
-                    <div class="landing-circle landing-circle-2"></div>
-                    <div class="landing-circle landing-circle-3"></div>
-                </div>
-                <div class="landing-content fade-in">
-                    <div class="landing-hero">
-                        <div class="landing-logo float">
-                            <span class="landing-logo-icon">🏥</span>
-                        </div>
-                        <h1 class="landing-title">HolaDoc!</h1>
-                        <p class="landing-subtitle">Tu salud, más simple</p>
-                        <p class="landing-description">
-                            Gestioná turnos, recetas, derivaciones y más<br>
-                            desde tu celular. Simple y rápido.
-                        </p>
-                    </div>
+        <div class="landing-wrapper">
 
-                    <div class="landing-features slide-up">
-                        <div class="landing-feature">
-                            <span class="landing-feature-icon">📅</span>
-                            <span class="landing-feature-text">Turnos al instante</span>
-                        </div>
-                        <div class="landing-feature">
-                            <span class="landing-feature-icon">💊</span>
-                            <span class="landing-feature-text">Recetas digitales</span>
-                        </div>
-                        <div class="landing-feature">
-                            <span class="landing-feature-icon">📊</span>
-                            <span class="landing-feature-text">Seguimiento de salud</span>
-                        </div>
-                        <div class="landing-feature">
-                            <span class="landing-feature-icon">🔔</span>
-                            <span class="landing-feature-text">Notificaciones en tiempo real</span>
-                        </div>
-                    </div>
-
-                    <div class="landing-actions slide-up" style="animation-delay: 0.2s;">
-                        <a href="#/login" class="btn btn-primary btn-lg btn-block" id="landing-login-btn">
-                            INGRESAR
-                        </a>
-                        <a href="#/register" class="btn btn-outline btn-lg btn-block" id="landing-register-btn" style="margin-top: 12px;">
-                            CREAR CUENTA
-                        </a>
-                    </div>
-
-                    <p class="landing-footer text-muted" style="margin-top: 32px; font-size: 15px;">
-                        Ingresá solo con tu DNI. Sin contraseñas.
-                    </p>
-                </div>
+          <!-- TOPBAR -->
+          <div class="topbar">
+            <div class="topbar-inner">
+              <div class="topbar-left">
+                <div class="topbar-item"><span>📞</span> 0800-999-HOLA</div>
+                <div class="topbar-item"><span>✉️</span> contacto@holadoc.com.ar</div>
+                <div class="topbar-item"><span>🕐</span> Lun–Vie 8:00–20:00</div>
+              </div>
+              <div class="topbar-right">
+                <a href="#" class="topbar-social" title="Facebook">f</a>
+                <a href="#" class="topbar-social" title="Instagram">ig</a>
+                <a href="#" class="topbar-social" title="Twitter/X">x</a>
+              </div>
             </div>
+          </div>
+
+          <!-- NAVBAR -->
+          <nav class="navbar" id="landing-navbar">
+            <div class="navbar-inner">
+              <a href="#/" class="navbar-logo">
+                <div class="logo-icon-wrap">🏥</div>
+                <span class="logo-text">Hola<span>Doc!</span></span>
+              </a>
+              <div class="navbar-links">
+                <button class="nav-link" onclick="document.getElementById('services-section').scrollIntoView({behavior:'smooth'})">Servicios</button>
+                <button class="nav-link" onclick="document.getElementById('about-section').scrollIntoView({behavior:'smooth'})">Nosotros</button>
+                <button class="nav-link" onclick="document.getElementById('team-section').scrollIntoView({behavior:'smooth'})">Equipo</button>
+                <button class="nav-link" onclick="document.getElementById('contact-section').scrollIntoView({behavior:'smooth'})">Contacto</button>
+              </div>
+              <div class="navbar-cta">
+                <a href="#/login" class="btn btn-outline-dark btn-sm" id="landing-login-btn">Iniciar Sesión</a>
+                <a href="#/register" class="btn btn-primary btn-sm" id="landing-register-btn">Registrarse</a>
+              </div>
+              <button class="hamburger" id="land-hamburger" aria-label="Menú">
+                <span></span><span></span><span></span>
+              </button>
+            </div>
+          </nav>
+
+          <!-- HERO SLIDER -->
+          <section class="hero-section" id="hero-section">
+            <div class="hero-slides" id="hero-slides">
+              <div class="hero-slide active" id="slide-0">
+                <img src="img/hero1.png" alt="Equipo médico profesional HolaDoc!" />
+              </div>
+              <div class="hero-slide" id="slide-1">
+                <img src="img/hero2.png" alt="Atención personalizada a pacientes" />
+              </div>
+            </div>
+            <div class="hero-content">
+              <div class="hero-label">Plataforma de Salud Digital</div>
+              <h1 class="hero-title">Tu salud, <em>más simple</em><br>que nunca</h1>
+              <p class="hero-subtitle">
+                Gestioná turnos, recetas digitales, derivaciones y tu historia clínica
+                desde cualquier dispositivo. Rápido, seguro y sin filas.
+              </p>
+              <div class="hero-actions">
+                <a href="#/login" class="btn btn-primary btn-lg" id="hero-login-btn">Ingresar Ahora</a>
+                <button class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.5)" onclick="document.getElementById('services-section').scrollIntoView({behavior:'smooth'})">Ver Servicios</button>
+              </div>
+            </div>
+            <div class="hero-dots" id="hero-dots">
+              <button class="hero-dot active" data-slide="0"></button>
+              <button class="hero-dot" data-slide="1"></button>
+            </div>
+          </section>
+
+          <!-- SERVICES SECTION -->
+          <section class="services-section" id="services-section">
+            <div class="section-header">
+              <span class="section-label">Nuestros Servicios</span>
+              <h2>Todo lo que necesitás,<br>en un solo lugar</h2>
+              <p>Accedé a los servicios de salud más importantes de forma digital, rápida y segura.</p>
+            </div>
+            <div class="services-grid">
+              <div class="service-card card-dark">
+                <div class="service-card-icon">📅</div>
+                <h3>Turnos Online</h3>
+                <p>Reservá turnos con tu médico en segundos, sin llamadas ni esperas. Recibís confirmación instantánea.</p>
+              </div>
+              <div class="service-card card-red">
+                <div class="service-card-icon">💊</div>
+                <h3>Receta Digital</h3>
+                <p>Tu médico emite recetas digitales con validez oficial. Presentalas en cualquier farmacia de la red.</p>
+              </div>
+              <div class="service-card card-dark">
+                <div class="service-card-icon">📋</div>
+                <h3>Historia Clínica</h3>
+                <p>Accedé a toda tu historia clínica, estudios y diagnósticos desde cualquier lugar, en cualquier momento.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABOUT SECTION -->
+          <section class="about-section" id="about-section">
+            <div class="about-inner">
+              <div class="about-image-wrap">
+                <img src="img/about.png" alt="Médico atendiendo a paciente en consultorio" />
+                <div class="about-badge">
+                  <div class="badge-num">+15</div>
+                  <div class="badge-txt">Años de<br>experiencia</div>
+                </div>
+              </div>
+              <div class="about-content">
+                <span class="section-label">Quiénes Somos</span>
+                <h2 style="margin-top:8px;margin-bottom:16px">Comprometidos con tu<br><em style="color:var(--primary);font-style:normal">salud y bienestar</em></h2>
+                <p>HolaDoc! nació para simplificar el acceso a la salud en Argentina. Conectamos pacientes con médicos de forma digital, eliminando barreras y tiempos de espera.</p>
+                <div class="about-features">
+                  <div class="about-feature">
+                    <div class="about-feat-icon">🏥</div>
+                    <div>
+                      <div class="about-feat-title">Red de Médicos Certificados</div>
+                      <div class="about-feat-desc">Todos nuestros profesionales están matriculados y verificados.</div>
+                    </div>
+                  </div>
+                  <div class="about-feature">
+                    <div class="about-feat-icon">🔒</div>
+                    <div>
+                      <div class="about-feat-title">Datos 100% Seguros</div>
+                      <div class="about-feat-desc">Tu información médica protegida con los más altos estándares.</div>
+                    </div>
+                  </div>
+                  <div class="about-feature">
+                    <div class="about-feat-icon">📱</div>
+                    <div>
+                      <div class="about-feat-title">Siempre Disponible</div>
+                      <div class="about-feat-desc">Accedé desde cualquier dispositivo, las 24 horas del día.</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top:28px">
+                  <a href="#/register" class="btn btn-primary">Comenzar Ahora</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- STATS BAR -->
+          <section class="stats-bar">
+            <div class="stats-bar-inner">
+              <div class="stat-item-land">
+                <div class="stat-num">50K+</div>
+                <div class="stat-txt">Pacientes Registrados</div>
+              </div>
+              <div class="stat-item-land">
+                <div class="stat-num">1.2K</div>
+                <div class="stat-txt">Médicos en la Red</div>
+              </div>
+              <div class="stat-item-land">
+                <div class="stat-num">98%</div>
+                <div class="stat-txt">Satisfacción</div>
+              </div>
+              <div class="stat-item-land">
+                <div class="stat-num">24/7</div>
+                <div class="stat-txt">Disponibilidad</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TEAM GALLERY -->
+          <section class="gallery-section" id="team-section">
+            <div class="section-header">
+              <span class="section-label">Nuestro Equipo</span>
+              <h2>Profesionales dedicados<br>a tu salud</h2>
+            </div>
+            <div class="gallery-grid">
+              <div class="gallery-item">
+                <img src="img/hero1.png" alt="Dra. Martínez - Clínica General" />
+                <div class="gallery-overlay">
+                  <div class="gallery-name">Dra. Ana Martínez</div>
+                  <div class="gallery-role">Clínica General</div>
+                </div>
+              </div>
+              <div class="gallery-item">
+                <img src="img/about.png" alt="Dr. Rodríguez - Cardiología" />
+                <div class="gallery-overlay">
+                  <div class="gallery-name">Dr. Carlos Rodríguez</div>
+                  <div class="gallery-role">Cardiología</div>
+                </div>
+              </div>
+              <div class="gallery-item">
+                <img src="img/hero2.png" alt="Dra. López - Pediatría" />
+                <div class="gallery-overlay">
+                  <div class="gallery-name">Dra. Laura López</div>
+                  <div class="gallery-role">Pediatría</div>
+                </div>
+              </div>
+              <div class="gallery-item">
+                <img src="img/hero1.png" alt="Dr. González - Traumatología" />
+                <div class="gallery-overlay">
+                  <div class="gallery-name">Dr. Martín González</div>
+                  <div class="gallery-role">Traumatología</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CONTACT CTA -->
+          <section style="padding:72px 24px;background:var(--primary);text-align:center" id="contact-section">
+            <div style="max-width:600px;margin:0 auto">
+              <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.7)">Empezá Hoy</span>
+              <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin:12px 0 16px;line-height:1.15">¿Listo para cuidar<br>tu salud con HolaDoc?</h2>
+              <p style="color:rgba(255,255,255,0.8);font-size:16px;margin-bottom:32px">Registrate gratis y accedé a todos nuestros servicios de salud digital en minutos.</p>
+              <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+                <a href="#/register" class="btn btn-lg" style="background:#fff;color:var(--primary);border-color:#fff;font-weight:700">Crear Cuenta Gratis</a>
+                <a href="#/login" class="btn btn-lg" style="background:transparent;color:#fff;border-color:rgba(255,255,255,0.5)">Ya tengo cuenta</a>
+              </div>
+            </div>
+          </section>
+
+          <!-- FOOTER -->
+          <footer class="footer">
+            <div class="footer-inner">
+              <div class="footer-top">
+                <div class="footer-brand">
+                  <div class="footer-logo">Hola<em>Doc!</em></div>
+                  <p class="footer-desc">La plataforma de salud digital que conecta pacientes y médicos de Argentina de forma simple, segura y eficiente.</p>
+                </div>
+                <div class="footer-col">
+                  <h4>Servicios</h4>
+                  <div class="footer-links">
+                    <a href="#/">Turnos Online</a>
+                    <a href="#/">Recetas Digitales</a>
+                    <a href="#/">Historia Clínica</a>
+                    <a href="#/">Derivaciones</a>
+                  </div>
+                </div>
+                <div class="footer-col">
+                  <h4>Institucional</h4>
+                  <div class="footer-links">
+                    <a href="#/">Quiénes Somos</a>
+                    <a href="#/">Nuestro Equipo</a>
+                    <a href="#/">Obras Sociales</a>
+                    <a href="#/">PAMI</a>
+                  </div>
+                </div>
+                <div class="footer-col">
+                  <h4>Contacto</h4>
+                  <div class="footer-links">
+                    <a href="#/">📞 0800-999-HOLA</a>
+                    <a href="#/">✉️ contacto@holadoc.com.ar</a>
+                    <a href="#/">📍 Buenos Aires, Argentina</a>
+                  </div>
+                </div>
+              </div>
+              <div class="footer-bottom">
+                <span>© 2025 HolaDoc! — Todos los derechos reservados</span>
+                <div class="footer-bottom-links">
+                  <a href="#/">Privacidad</a>
+                  <a href="#/">Términos</a>
+                  <a href="#/">Cookies</a>
+                </div>
+              </div>
+            </div>
+          </footer>
+
+        </div>
         `;
+
+        // Hero slider logic
+        let currentSlide = 0;
+        const slides = container.querySelectorAll('.hero-slide');
+        const dots   = container.querySelectorAll('.hero-dot');
+
+        function goToSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+
+        dots.forEach(dot => dot.addEventListener('click', () => goToSlide(+dot.dataset.slide)));
+        const sliderInterval = setInterval(() => goToSlide(currentSlide + 1), 5000);
+
+        // Navbar scroll shadow
+        const landNav = container.querySelector('#landing-navbar');
+        window.addEventListener('scroll', () => {
+            if (landNav) landNav.classList.toggle('scrolled', window.scrollY > 20);
+        }, { passive: true });
     }
 
     // ── 404 Page ────────────────────────────────────────────────
