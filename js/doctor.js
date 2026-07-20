@@ -213,7 +213,7 @@
         <div class="grid grid-3 mb-3 stagger-children">
           <div class="card card-3d" style="border-left:4px solid var(--primary); display:flex; align-items:center; gap:16px; padding:20px;">
             <div style="width:52px;height:52px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0;">
-              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <img src="img/icon_turno.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Turnos">
             </div>
             <div>
               <div style="font-size:1.8rem;font-weight:800;line-height:1.2;color:#1A1A1A;">${todaySorted.length}</div>
@@ -222,7 +222,7 @@
           </div>
           <div class="card card-3d" style="border-left:4px solid var(--warning); display:flex; align-items:center; gap:16px; padding:20px;">
             <div style="width:52px;height:52px;background:#FFFBEB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--warning);flex-shrink:0;">
-              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <img src="img/icon_receta.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Solicitudes">
             </div>
             <div>
               <div style="font-size:1.8rem;font-weight:800;line-height:1.2;color:#1A1A1A;">${allRequests.length}</div>

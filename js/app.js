@@ -107,6 +107,8 @@
         document.body.style.backgroundPosition = "center";
         document.body.style.backgroundAttachment = "fixed";
 
+        app.style.background = 'transparent';
+
         app.innerHTML = `
             <!-- Panel Header (dark bar) -->
             <header class="panel-header" id="panel-header">
@@ -125,7 +127,7 @@
             </header>
 
             <!-- Main Content Area -->
-            <main class="main-content" id="page-content"></main>
+            <main class="main-content" id="page-content" style="background: transparent !important;"></main>
 
             <!-- Bottom Navigation -->
             <nav class="bottom-nav" id="bottom-nav">
