@@ -773,27 +773,27 @@
         <div class="card-body">
           <div class="form-group">
             <label class="form-label">Motivo de consulta *</label>
-            <textarea class="form-textarea" id="hc-reason" rows="2" placeholder="Describa el motivo de la consulta..." required></textarea>
+            <textarea class="form-control" id="hc-reason" rows="4" placeholder="Describa el motivo de la consulta..." required></textarea>
           </div>
           <div class="form-group">
             <label class="form-label">Antecedentes patológicos</label>
-            <textarea class="form-textarea" id="hc-pathological" rows="2" placeholder="Antecedentes relevantes..."></textarea>
+            <textarea class="form-control" id="hc-pathological" rows="4" placeholder="Antecedentes relevantes..."></textarea>
           </div>
           <div class="form-group">
             <label class="form-label">Antecedentes quirúrgicos</label>
-            <textarea class="form-textarea" id="hc-surgical" rows="2" placeholder="Cirugías previas..."></textarea>
+            <textarea class="form-control" id="hc-surgical" rows="4" placeholder="Cirugías previas..."></textarea>
           </div>
           <div class="form-group">
             <label class="form-label">Medicación actual</label>
-            <textarea class="form-textarea" id="hc-medication" rows="2" placeholder="Medicamentos en curso..."></textarea>
+            <textarea class="form-control" id="hc-medication" rows="4" placeholder="Medicamentos en curso..."></textarea>
           </div>
           <div class="form-group">
             <label class="form-label">Objetivos para próxima consulta</label>
-            <textarea class="form-textarea" id="hc-objectives" rows="2" placeholder="Seguimiento, estudios, etc..."></textarea>
+            <textarea class="form-control" id="hc-objectives" rows="4" placeholder="Seguimiento, estudios, etc..."></textarea>
           </div>
           <div class="form-group">
             <label class="form-label">Notas adicionales</label>
-            <textarea class="form-textarea" id="hc-notes" rows="2" placeholder="Cualquier observación adicional..."></textarea>
+            <textarea class="form-control" id="hc-notes" rows="4" placeholder="Cualquier observación adicional..."></textarea>
           </div>
           <button class="btn btn-success btn-lg btn-block" id="hc-save">💾 GUARDAR</button>
         </div>
