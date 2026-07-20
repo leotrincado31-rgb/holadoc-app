@@ -11,24 +11,24 @@
     // ── Shared Layout wrapper (navbar + footer simples) ──────────
     function authPageHTML(content) {
         return `
-        <div style="min-height:100vh;display:flex;flex-direction:column;background:#F5F5F5;">
+        <div style="min-height:100vh;display:flex;flex-direction:column;background:#F5F5F5;font-family:'Poppins',sans-serif;">
 
           <!-- Mini Navbar -->
-          <nav style="background:#fff;border-bottom:1px solid #E0E0E0;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <nav style="background:#fff;border-bottom:1px solid #E0E0E0;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;z-index:10;">
             <a href="#/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-              <div style="width:38px;height:38px;background:#034C81;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏥</div>
+              <div style="width:38px;height:38px;background:#034C81;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;">🏥</div>
               <span style="font-size:20px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;font-family:'Poppins',sans-serif;">Hola<span style="color:#034C81;">Doc!</span></span>
             </a>
             <a href="#/" style="font-size:13px;font-weight:600;color:#666;text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">← Volver al inicio</a>
           </nav>
 
-          <!-- Content -->
-          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 16px;">
+          <!-- Content with blurred clinic background -->
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 16px;background:linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.75)), url('img/auth_bg.png') no-repeat center center;background-size:cover;position:relative;">
             ${content}
           </div>
 
           <!-- Footer mini -->
-          <div style="background:#1E1E1E;padding:16px 24px;text-align:center;">
+          <div style="background:#1E1E1E;padding:16px 24px;text-align:center;position:relative;z-index:10;">
             <span style="font-size:12px;color:rgba(255,255,255,0.4);font-family:'Poppins',sans-serif;">© 2025 HolaDoc! — Plataforma de Salud Digital</span>
           </div>
         </div>
@@ -36,12 +36,12 @@
     }
 
     // ── Card wrapper ─────────────────────────────────────────────
-    function authCard(title, subtitle, icon, body) {
+    function authCard(title, subtitle, iconHtml, body) {
         return `
-        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:40px 36px;width:100%;max-width:460px;box-shadow:0 4px 24px rgba(0,0,0,0.08);animation:fadeInUp .3s ease both;">
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:40px 36px;width:100%;max-width:460px;box-shadow:0 10px 30px rgba(3,76,129,0.15);animation:fadeInUp .3s ease both;position:relative;z-index:5;">
           <div style="text-align:center;margin-bottom:32px;">
-            <div style="width:64px;height:64px;background:#034C81;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">
-              ${icon}
+            <div style="width:68px;height:68px;background:#EFF6FF;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#034C81;border:1px solid rgba(3,76,129,0.15);">
+              ${iconHtml}
             </div>
             <h1 style="font-size:24px;font-weight:800;color:#1A1A1A;margin-bottom:6px;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.5px;">${title}</h1>
             <p style="font-size:14px;color:#666;font-family:'Poppins',sans-serif;">${subtitle}</p>
@@ -98,7 +98,7 @@
             container.innerHTML = authPageHTML(authCard(
                 'Iniciar Sesión',
                 'Ingresá con tu número de DNI — Sin contraseñas',
-                '🔐',
+                `<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
                 `
                 ${errorBox('login-error')}
                 <form id="login-form">
@@ -141,9 +141,11 @@
         // ── REGISTER (selección de tipo) ─────────────────────────
         renderRegister(container) {
             container.innerHTML = authPageHTML(`
-            <div style="width:100%;max-width:560px;animation:fadeInUp .3s ease both;">
+            <div style="width:100%;max-width:580px;animation:fadeInUp .3s ease both;position:relative;z-index:5;background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:40px 36px;box-shadow:0 10px 30px rgba(3,76,129,0.15);">
               <div style="text-align:center;margin-bottom:32px;">
-                <div style="width:64px;height:64px;background:#034C81;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">📋</div>
+                <div style="width:68px;height:68px;background:#EFF6FF;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#034C81;border:1px solid rgba(3,76,129,0.15);">
+                  <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
                 <h1 style="font-size:24px;font-weight:800;color:#1A1A1A;margin-bottom:6px;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.5px;">Crear Cuenta</h1>
                 <p style="font-size:14px;color:#666;font-family:'Poppins',sans-serif;">¿Cómo vas a usar HolaDoc!?</p>
               </div>
@@ -153,7 +155,9 @@
                   style="background:#fff;border:2px solid #E0E0E0;border-radius:10px;padding:28px 20px;text-align:center;text-decoration:none;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:12px;"
                   onmouseover="this.style.borderColor='#034C81';this.style.background='#EFF6FF';this.style.transform='translateY(-3px)'"
                   onmouseout="this.style.borderColor='#E0E0E0';this.style.background='#fff';this.style.transform='translateY(0)'">
-                  <div style="width:56px;height:56px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🏥</div>
+                  <div style="width:56px;height:56px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#034C81;">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  </div>
                   <div>
                     <div style="font-size:16px;font-weight:800;color:#1A1A1A;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.3px;">Soy Paciente</div>
                     <div style="font-size:12px;color:#666;font-family:'Poppins',sans-serif;margin-top:4px;line-height:1.5;">Solicitá recetas, turnos<br>y consultá tus estudios.</div>
@@ -163,7 +167,9 @@
                   style="background:#fff;border:2px solid #E0E0E0;border-radius:10px;padding:28px 20px;text-align:center;text-decoration:none;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:12px;"
                   onmouseover="this.style.borderColor='#034C81';this.style.background='#EFF6FF';this.style.transform='translateY(-3px)'"
                   onmouseout="this.style.borderColor='#E0E0E0';this.style.background='#fff';this.style.transform='translateY(0)'">
-                  <div style="width:56px;height:56px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">⚕️</div>
+                  <div style="width:56px;height:56px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#034C81;">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path></svg>
+                  </div>
                   <div>
                     <div style="font-size:16px;font-weight:800;color:#1A1A1A;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.3px;">Soy Médico</div>
                     <div style="font-size:12px;color:#666;font-family:'Poppins',sans-serif;margin-top:4px;line-height:1.5;">Gestioná pacientes,<br>recetas y agenda.</div>
@@ -186,7 +192,7 @@
             container.innerHTML = authPageHTML(authCard(
                 'Registro de Paciente',
                 'Ingresá tus datos personales para crear tu cuenta',
-                '🏥',
+                `<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
                 `
                 ${errorBox('reg-dni-error')}
                 <form id="patient-register-form">
@@ -239,7 +245,7 @@
             container.innerHTML = authPageHTML(authCard(
                 'Registro de Médico',
                 'Ingresá tus datos profesionales para crear tu cuenta',
-                '⚕️',
+                `<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path></svg>`,
                 `
                 ${errorBox('reg-dni-error')}
                 <form id="doctor-register-form">
