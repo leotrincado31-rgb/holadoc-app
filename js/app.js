@@ -210,6 +210,7 @@
         if (parts[0] === 'doctor' && parts[1] === 'paciente' && parts[2]) {
             route = '/doctor/paciente';
             params.dni = parts[2];
+            params.tab = parts[3] || 'historia';
         }
         // /patient/solicitud/req_123 -> route=/patient/solicitud, params.id=req_123
         if (parts[0] === 'patient' && parts[1] === 'solicitud' && parts[2]) {
@@ -285,7 +286,7 @@
                 window.HolaDocDoctor.renderPatients(container);
                 break;
             case 'doctorPatientDetail':
-                window.HolaDocDoctor.renderPatientDetail(container, params.dni);
+                window.HolaDocDoctor.renderPatientDetail(container, params.dni, params.tab);
                 break;
             case 'doctorRequests':
                 window.HolaDocDoctor.renderRequests(container);

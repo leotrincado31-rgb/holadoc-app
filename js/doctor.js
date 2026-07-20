@@ -280,7 +280,7 @@
       link.addEventListener('click', () => _app().navigate(`/doctor/paciente/${link.dataset.dni}`));
     });
     container.querySelectorAll('.dash-req-link').forEach(link => {
-      link.addEventListener('click', () => _app().navigate(`/doctor/paciente/${link.dataset.dni}`));
+      link.addEventListener('click', () => _app().navigate(`/doctor/paciente/${link.dataset.dni}/solicitudes`));
     });
     const verTodas = container.querySelector('#dash-ver-todas');
     if (verTodas) verTodas.addEventListener('click', () => _app().navigate('/doctor/solicitudes'));
@@ -530,7 +530,7 @@
   // renderPatientDetail
   // ──────────────────────────────────────────────────────────────────────────
 
-  function renderPatientDetail(container, patientDni) {
+  function renderPatientDetail(container, patientDni, defaultTab = 'historia') {
     container.innerHTML = '';
     const doc = currentDoctor();
     const pat = _storage().getPatient(patientDni);
@@ -539,7 +539,7 @@
       return;
     }
 
-    let activeTab = 'historia';
+    let activeTab = defaultTab;
 
     function render() {
       const age = calcAge(pat.birthDate);
