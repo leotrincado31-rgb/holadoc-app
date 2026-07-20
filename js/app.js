@@ -107,6 +107,12 @@
         document.body.style.backgroundPosition = "center";
         document.body.style.backgroundAttachment = "fixed";
 
+        if (isDoctor) {
+            document.body.classList.add('dark-bg-theme');
+        } else {
+            document.body.classList.remove('dark-bg-theme');
+        }
+
         app.style.background = 'transparent';
 
         app.innerHTML = `

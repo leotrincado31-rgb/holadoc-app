@@ -216,3 +216,32 @@ button, input, select, textarea {
   70%  { transform: scale(1.1); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* ── DARK BACKGROUND TEXT OVERRIDES (Para paneles con fondo oscuro) ── */
+body.dark-bg-theme .page-title,
+body.dark-bg-theme .page-subtitle,
+body.dark-bg-theme .section-title,
+body.dark-bg-theme .empty-state-text,
+body.dark-bg-theme .page-back {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+body.dark-bg-theme .flex-between > a {
+  color: #93C5FD !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+body.dark-bg-theme p:not(.card p):not(.toast p) {
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 5px rgba(0,0,0,0.8);
+}
+
+body.dark-bg-theme .card .page-title,
+body.dark-bg-theme .card .page-subtitle,
+body.dark-bg-theme .card .section-title,
+body.dark-bg-theme .card p,
+body.dark-bg-theme .toast p {
+  color: var(--text-primary) !important;
+  text-shadow: none !important;
+}
