@@ -1094,6 +1094,55 @@
     });
   }
 
+  function showCancelAppointmentModal(doc, pat, apptId, dateStr, refreshFn) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+
+    overlay.innerHTML = `
+      <div class="modal slide-up" style="max-width:450px">
+        <div class="modal-header flex-between">
+          <h3 style="font-weight:900; font-size:20px; color:var(--primary); margin:0;">❌ Cancelar Turno</h3>
+          <button class="modal-close" id="cancel-appt-close">✕</button>
+        </div>
+        <div class="card-body" style="padding-top:16px;">
+          <p style="font-size:16px; margin-bottom:16px; color:var(--text-secondary);">
+            ¿Estás seguro de que deseas cancelar el turno de <strong>${escapeHtml(pat.name)}</strong> programado para el día <strong>${dateStr}</strong>?
+          </p>
+          <div class="form-group">
+            <label class="form-label">Motivo de la cancelación *</label>
+            <textarea class="form-textarea" id="cancel-appt-reason" rows="3" placeholder="Ej: Superposición horaria / Congresos médicos..." required></textarea>
+          </div>
+          <button class="btn btn-danger btn-lg btn-block" id="cancel-appt-confirm">CANCELAR TURNO</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#cancel-appt-close').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+    overlay.querySelector('#cancel-appt-confirm').addEventListener('click', () => {
+      const reason = overlay.querySelector('#cancel-appt-reason').value.trim();
+      if (!reason) { _app().showToast('Debe indicar el motivo de la cancelación', 'error'); return; }
+
+      _storage().updateAppointment(apptId, {
+        status: 'cancelado',
+        cancelReason: reason
+      });
+
+      _notifications().createNotification(
+        pat.dni, 'patient', 'turno',
+        'Turno cancelado',
+        `Tu turno del ${dateStr} fue cancelado por el Dr. ${doc.name}. Motivo: ${reason}`,
+        apptId
+      );
+
+      _app().showToast('Turno cancelado correctamente', 'warning');
+      overlay.remove();
+      refreshFn();
+    });
+  }
+
   // ── Tab: Turnos ───────────────────────────────────────────────────────────
 
   function renderTabTurnos(content, doc, pat) {
@@ -1159,10 +1208,9 @@
 
       content.querySelectorAll('.turno-cancel').forEach(btn => {
         btn.addEventListener('click', () => {
-          _storage().updateAppointment(btn.dataset.id, { status: 'cancelado' });
-          _notifications().createNotification(pat.dni, 'patient', 'turno', 'Turno cancelado', `Tu turno fue cancelado por el Dr. ${doc.name}. Podés solicitar uno nuevo.`, btn.dataset.id);
-          _app().showToast('Turno cancelado', 'warning');
-          draw();
+          const appt = appts.find(a => a.id === btn.dataset.id);
+          const dateStr = formatDate(appt?.date);
+          showCancelAppointmentModal(doc, pat, btn.dataset.id, dateStr, draw);
         });
       });
     }

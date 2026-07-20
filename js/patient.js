@@ -744,72 +744,101 @@
 
             const records = window.HolaDocStorage.getRecords(user.dni);
             const requests = window.HolaDocStorage.getRequests({ patientDni: user.dni });
+            const appointments = window.HolaDocStorage.getAppointments({ patientDni: user.dni });
+
+            const allItems = [
+                ...requests.map(r => ({ ...r, isAppt: false })),
+                ...appointments.map(a => ({ ...a, isAppt: true, type: 'turno', createdAt: a.createdAt || a.date + 'T00:00:00.000Z' }))
+            ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
             function renderTabs(activeTab) {
                 let tabContent = '';
 
                 if (activeTab === 'requests') {
-                    if (requests.length === 0) {
+                    if (allItems.length === 0) {
                         tabContent = `
                             <div class="empty-state">
                                 <div class="empty-state-icon">📋</div>
                                 <h3 class="empty-state-title">No tenés solicitudes cargadas</h3>
-                                <p class="text-muted">Todas las recetas, derivaciones, internaciones y estudios que pidas aparecerán acá.</p>
+                                <p class="text-muted">Todas las recetas, turnos y derivaciones aparecerán acá.</p>
                             </div>
                         `;
                     } else {
                         tabContent = `
                             <div class="grid" style="gap:16px;">
-                                ${requests.map(r => {
+                                ${allItems.map(r => {
                                     let icon = '📋';
                                     let typeName = 'Solicitud';
                                     let detailsPreview = '';
                                     
-                                    if (r.type === 'receta') { 
-                                        icon = '💊'; 
-                                        typeName = 'Receta Médica'; 
-                                        detailsPreview = r.details.medications;
-                                    } else if (r.type === 'derivacion') { 
-                                        icon = '🔄'; 
-                                        typeName = 'Derivación Especialista'; 
-                                        detailsPreview = `Derivación a: ${r.details.specialty}`;
-                                    } else if (r.type === 'estudio') { 
-                                        icon = '🔬'; 
-                                        typeName = 'Estudio de Imagen/Lab'; 
-                                        detailsPreview = `${r.details.studyType} - ${r.details.details}`;
-                                    } else if (r.type === 'internacion') { 
-                                        icon = '🏠'; 
-                                        typeName = 'Internación Domiciliaria'; 
-                                        detailsPreview = `Dirección: ${r.details.address}`;
+                                    if (r.isAppt) {
+                                        icon = '📅';
+                                        typeName = 'Turno Programado';
+                                        detailsPreview = `Turno para el día ${new Date(r.date + 'T00:00:00').toLocaleDateString('es-AR')} a las ${r.time} hs.`;
+                                    } else {
+                                        if (r.type === 'receta') { 
+                                            icon = '💊'; 
+                                            typeName = 'Receta Médica'; 
+                                            detailsPreview = r.details.medications;
+                                        } else if (r.type === 'derivacion') { 
+                                            icon = '🔄'; 
+                                            typeName = 'Derivación Especialista'; 
+                                            detailsPreview = `Derivación a: ${r.details.specialty}`;
+                                        } else if (r.type === 'estudio') { 
+                                            icon = '🔬'; 
+                                            typeName = 'Estudio de Imagen/Lab'; 
+                                            detailsPreview = `${r.details.studyType} - ${r.details.details}`;
+                                        } else if (r.type === 'internacion') { 
+                                            icon = '🏠'; 
+                                            typeName = 'Internación Domiciliaria'; 
+                                            detailsPreview = `Dirección: ${r.details.address}`;
+                                        }
                                     }
 
                                     const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
                                     const docName = doc ? doc.name : 'Médico General';
                                     const dateStr = new Date(r.createdAt).toLocaleDateString('es-AR');
 
+                                    // Status styling
+                                    let borderCol = '--warning';
+                                    let statusLbl = r.status;
+                                    if (r.status === 'completada' || r.status === 'confirmado') {
+                                        borderCol = '--accent';
+                                        statusLbl = r.status === 'confirmado' ? 'Confirmado' : 'Listo';
+                                    } else if (r.status === 'rechazada' || r.status === 'cancelado') {
+                                        borderCol = '--danger';
+                                        statusLbl = r.status === 'cancelado' ? 'Cancelado' : 'Rechazado';
+                                    } else if (r.status === 'pendiente') {
+                                        statusLbl = 'Pendiente';
+                                    }
+
                                     return `
-                                        <div class="card card-3d" style="text-align:left; border-left:6px solid var(${r.status === 'completada' ? '--accent' : r.status === 'rechazada' ? '--danger' : '--warning'});">
+                                        <div class="card card-3d" style="text-align:left; border-left:6px solid var(${borderCol});">
                                             <div class="flex-between mb-1">
                                                 <div class="flex gap-2" style="align-items:center;">
                                                     <span style="font-size:28px;">${icon}</span>
                                                     <div>
                                                         <h3 style="font-weight:800; font-size:18px; margin:0;">${typeName}</h3>
-                                                        <span class="text-muted" style="font-size:14px;">Solicitado a: ${docName}</span>
+                                                        <span class="text-muted" style="font-size:14px;">Profesional: ${docName}</span>
                                                     </div>
                                                 </div>
                                                 <span class="badge badge-${r.status}">
-                                                    ${r.status === 'pendiente' ? 'Pendiente' : ''}
-                                                    ${r.status === 'en_proceso' ? 'En Proceso' : ''}
-                                                    ${r.status === 'completada' ? 'Listo / Firmado' : ''}
-                                                    ${r.status === 'rechazada' ? 'Rechazado' : ''}
+                                                    ${statusLbl}
                                                 </span>
                                             </div>
                                             <p style="font-size:16px; margin:8px 0; color:var(--text-secondary); background:rgba(0,0,0,0.01); padding:8px 12px; border-radius:6px;">
-                                                <b>Pedido:</b> ${detailsPreview}
+                                                <b>Detalle:</b> ${detailsPreview}
                                             </p>
+                                            
+                                            ${r.status === 'cancelado' && r.cancelReason ? `
+                                                <div style="margin: 8px 0; padding: 10px 14px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; color: #991B1B; font-size:15px;">
+                                                    ⚠️ <b>Motivo de la cancelación:</b> ${escapeHtml(r.cancelReason)}
+                                                </div>
+                                            ` : ''}
+
                                             <div class="flex-between mt-2" style="font-size:14px; border-top:1px solid var(--bg-secondary); padding-top:8px;">
                                                 <span class="text-muted">Fecha: ${dateStr}</span>
-                                                <a href="#/patient/solicitud/${r.id}" class="btn btn-outline" style="height:36px; padding:0 12px; font-size:14px; border-radius:8px;">Ver receta / detalle</a>
+                                                ${r.isAppt ? '' : `<a href="#/patient/solicitud/${r.id}" class="btn btn-outline" style="height:36px; padding:0 12px; font-size:14px; border-radius:8px;">Ver receta / detalle</a>`}
                                             </div>
                                         </div>
                                     `;
