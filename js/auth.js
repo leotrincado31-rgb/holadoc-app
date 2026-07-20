@@ -1,61 +1,129 @@
 /**
  * HolaDoc! — Authentication Module
- * Renders Login and Register views.
- * DNI-based simple authentication.
+ * Estilo Apicona — Corporativo / Médico
+ * Login y Registro con diseño consistente con la landing.
  */
 (function() {
     'use strict';
 
     const SPECIALTIES = ['Clínica Médica','Cardiología','Dermatología','Endocrinología','Gastroenterología','Ginecología','Nefrología','Neumonología','Neurología','Oftalmología','Otorrinolaringología','Pediatría','Psiquiatría','Traumatología','Urología'];
 
+    // ── Shared Layout wrapper (navbar + footer simples) ──────────
+    function authPageHTML(content) {
+        return `
+        <div style="min-height:100vh;display:flex;flex-direction:column;background:#F5F5F5;">
+
+          <!-- Mini Navbar -->
+          <nav style="background:#fff;border-bottom:1px solid #E0E0E0;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <a href="#/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+              <div style="width:38px;height:38px;background:#034C81;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏥</div>
+              <span style="font-size:20px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;font-family:'Poppins',sans-serif;">Hola<span style="color:#034C81;">Doc!</span></span>
+            </a>
+            <a href="#/" style="font-size:13px;font-weight:600;color:#666;text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">← Volver al inicio</a>
+          </nav>
+
+          <!-- Content -->
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 16px;">
+            ${content}
+          </div>
+
+          <!-- Footer mini -->
+          <div style="background:#1E1E1E;padding:16px 24px;text-align:center;">
+            <span style="font-size:12px;color:rgba(255,255,255,0.4);font-family:'Poppins',sans-serif;">© 2025 HolaDoc! — Plataforma de Salud Digital</span>
+          </div>
+        </div>
+        `;
+    }
+
+    // ── Card wrapper ─────────────────────────────────────────────
+    function authCard(title, subtitle, icon, body) {
+        return `
+        <div style="background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:40px 36px;width:100%;max-width:460px;box-shadow:0 4px 24px rgba(0,0,0,0.08);animation:fadeInUp .3s ease both;">
+          <div style="text-align:center;margin-bottom:32px;">
+            <div style="width:64px;height:64px;background:#034C81;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">
+              ${icon}
+            </div>
+            <h1 style="font-size:24px;font-weight:800;color:#1A1A1A;margin-bottom:6px;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.5px;">${title}</h1>
+            <p style="font-size:14px;color:#666;font-family:'Poppins',sans-serif;">${subtitle}</p>
+          </div>
+          ${body}
+        </div>
+        `;
+    }
+
+    // ── Field helper ─────────────────────────────────────────────
+    function field(id, label, type, placeholder, required = true, extraAttrs = '') {
+        return `
+        <div style="margin-bottom:16px;">
+          <label for="${id}" style="display:block;font-size:11px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;font-family:'Poppins',sans-serif;">${label}</label>
+          <input type="${type}" id="${id}" placeholder="${placeholder}" ${required ? 'required' : ''} ${extraAttrs}
+            style="width:100%;padding:12px 14px;font-size:14px;color:#1A1A1A;background:#fff;border:1.5px solid #E0E0E0;border-radius:6px;outline:none;font-family:'Poppins',sans-serif;transition:border-color .2s;"
+            onfocus="this.style.borderColor='#034C81';this.style.boxShadow='0 0 0 3px rgba(3,76,129,0.1)'"
+            onblur="this.style.borderColor='#E0E0E0';this.style.boxShadow='none'">
+        </div>`;
+    }
+
+    function selectField(id, label, options) {
+        return `
+        <div style="margin-bottom:16px;">
+          <label for="${id}" style="display:block;font-size:11px;font-weight:700;color:#1A1A1A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;font-family:'Poppins',sans-serif;">${label}</label>
+          <select id="${id}" required
+            style="width:100%;padding:12px 14px;font-size:14px;color:#1A1A1A;background:#fff;border:1.5px solid #E0E0E0;border-radius:6px;outline:none;font-family:'Poppins',sans-serif;appearance:none;transition:border-color .2s;"
+            onfocus="this.style.borderColor='#034C81';this.style.boxShadow='0 0 0 3px rgba(3,76,129,0.1)'"
+            onblur="this.style.borderColor='#E0E0E0';this.style.boxShadow='none'">
+            <option value="" disabled selected>Seleccioná especialidad</option>
+            ${options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>
+        </div>`;
+    }
+
+    function submitBtn(text, id = 'btn-submit') {
+        return `
+        <button type="submit" id="${id}"
+          style="width:100%;padding:14px;background:#034C81;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:8px;transition:background .2s;"
+          onmouseover="this.style.background='#023A63'"
+          onmouseout="this.style.background='#034C81'">
+          ${text}
+        </button>`;
+    }
+
+    function errorBox(id) {
+        return `<div id="${id}" style="display:none;background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;padding:10px 14px;font-size:13px;color:#991B1B;margin-bottom:12px;font-family:'Poppins',sans-serif;"></div>`;
+    }
+
     window.HolaDocAuth = {
+
+        // ── LOGIN ────────────────────────────────────────────────
         renderLogin(container) {
-            container.innerHTML = `
-                <div class="landing-page">
-                    <div class="landing-bg">
-                        <div class="landing-circle landing-circle-1"></div>
-                        <div class="landing-circle landing-circle-2"></div>
-                    </div>
-                    <div class="landing-content fade-in">
-                        <div class="landing-hero" style="margin-bottom: 24px;">
-                            <div class="landing-logo float" style="width: 80px; height: 80px;">
-                                <span class="landing-logo-icon" style="font-size: 40px;">🏥</span>
-                            </div>
-                            <h2 class="landing-title" style="font-size: var(--text-2xl);">Ingresar a HolaDoc!</h2>
-                            <p class="landing-subtitle">Ingresá con tu número de DNI</p>
-                        </div>
-
-                        <form id="login-form">
-                            <div class="form-group">
-                                <label class="form-label" for="login-dni">Número de DNI</label>
-                                <input type="number" id="login-dni" class="form-input" placeholder="Ej: 11111111" required pattern="[0-9]{7,8}">
-                                <div class="form-error hidden" id="login-error"></div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg btn-block mt-2" id="btn-submit-login">
-                                INGRESAR
-                            </button>
-                        </form>
-
-                        <div style="margin-top: 24px;">
-                            <p class="text-muted" style="font-size:16px;">
-                                ¿No tenés cuenta? 
-                                <a href="#/register" style="color: var(--primary); font-weight: 700; text-decoration: none;">Registrate acá</a>
-                            </p>
-                            <a href="#/" class="btn-back" style="margin-top: 16px; display: inline-block;">← Volver al inicio</a>
-                        </div>
-                    </div>
+            container.innerHTML = authPageHTML(authCard(
+                'Iniciar Sesión',
+                'Ingresá con tu número de DNI — Sin contraseñas',
+                '🔐',
+                `
+                ${errorBox('login-error')}
+                <form id="login-form">
+                  ${field('login-dni', 'Número de DNI', 'number', 'Ej: 11111111', true, 'pattern="[0-9]{7,8}" inputmode="numeric"')}
+                  ${submitBtn('Ingresar Ahora', 'btn-submit-login')}
+                </form>
+                <div style="margin-top:24px;text-align:center;">
+                  <p style="font-size:13px;color:#666;font-family:'Poppins',sans-serif;">
+                    ¿No tenés cuenta?
+                    <a href="#/register" style="color:#034C81;font-weight:700;text-decoration:none;margin-left:4px;">Registrate acá</a>
+                  </p>
                 </div>
-            `;
+                `
+            ));
 
             const form = document.getElementById('login-form');
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const dni = document.getElementById('login-dni').value.trim();
                 const errorDiv = document.getElementById('login-error');
+                errorDiv.style.display = 'none';
 
                 if (!/^[0-9]{7,8}$/.test(dni)) {
                     errorDiv.textContent = 'El DNI debe tener 7 u 8 números.';
-                    errorDiv.classList.remove('hidden');
+                    errorDiv.style.display = 'block';
                     return;
                 }
 
@@ -65,89 +133,76 @@
                     window.HolaDocApp.navigate(user.type === 'patient' ? '/patient' : '/doctor');
                 } else {
                     errorDiv.textContent = 'No encontramos una cuenta con ese DNI. Por favor, registrate.';
-                    errorDiv.classList.remove('hidden');
+                    errorDiv.style.display = 'block';
                 }
             });
         },
 
+        // ── REGISTER (selección de tipo) ─────────────────────────
         renderRegister(container) {
-            container.innerHTML = `
-                <div class="landing-page">
-                    <div class="landing-bg">
-                        <div class="landing-circle landing-circle-1"></div>
-                        <div class="landing-circle landing-circle-2"></div>
-                    </div>
-                    <div class="landing-content fade-in" style="max-width: 600px;">
-                        <h2 class="landing-title mb-2">Crear Cuenta</h2>
-                        <p class="landing-subtitle mb-3">¿Cómo vas a usar HolaDoc!?</p>
+            container.innerHTML = authPageHTML(`
+            <div style="width:100%;max-width:560px;animation:fadeInUp .3s ease both;">
+              <div style="text-align:center;margin-bottom:32px;">
+                <div style="width:64px;height:64px;background:#034C81;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">📋</div>
+                <h1 style="font-size:24px;font-weight:800;color:#1A1A1A;margin-bottom:6px;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.5px;">Crear Cuenta</h1>
+                <p style="font-size:14px;color:#666;font-family:'Poppins',sans-serif;">¿Cómo vas a usar HolaDoc!?</p>
+              </div>
 
-                        <div class="grid grid-2" style="margin-bottom: 24px;">
-                            <a href="#/register/patient" class="action-card action-card--turno" id="register-as-patient">
-                                <div class="action-icon">🏥</div>
-                                <h3 style="font-weight:800; font-size:22px; margin-top:8px;">Soy Paciente</h3>
-                                <p class="text-muted" style="font-size:15px; margin-top:4px;">Para solicitar recetas, turnos y ver mis estudios.</p>
-                            </a>
-                            <a href="#/register/doctor" class="action-card action-card--receta" id="register-as-doctor">
-                                <div class="action-icon">⚕️</div>
-                                <h3 style="font-weight:800; font-size:22px; margin-top:8px;">Soy Médico</h3>
-                                <p class="text-muted" style="font-size:15px; margin-top:4px;">Para gestionar mis pacientes, recetas y agenda.</p>
-                            </a>
-                        </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+                <a href="#/register/patient" id="register-as-patient"
+                  style="background:#fff;border:2px solid #E0E0E0;border-radius:10px;padding:28px 20px;text-align:center;text-decoration:none;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:12px;"
+                  onmouseover="this.style.borderColor='#034C81';this.style.background='#EFF6FF';this.style.transform='translateY(-3px)'"
+                  onmouseout="this.style.borderColor='#E0E0E0';this.style.background='#fff';this.style.transform='translateY(0)'">
+                  <div style="width:56px;height:56px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🏥</div>
+                  <div>
+                    <div style="font-size:16px;font-weight:800;color:#1A1A1A;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.3px;">Soy Paciente</div>
+                    <div style="font-size:12px;color:#666;font-family:'Poppins',sans-serif;margin-top:4px;line-height:1.5;">Solicitá recetas, turnos<br>y consultá tus estudios.</div>
+                  </div>
+                </a>
+                <a href="#/register/doctor" id="register-as-doctor"
+                  style="background:#fff;border:2px solid #E0E0E0;border-radius:10px;padding:28px 20px;text-align:center;text-decoration:none;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:12px;"
+                  onmouseover="this.style.borderColor='#034C81';this.style.background='#EFF6FF';this.style.transform='translateY(-3px)'"
+                  onmouseout="this.style.borderColor='#E0E0E0';this.style.background='#fff';this.style.transform='translateY(0)'">
+                  <div style="width:56px;height:56px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">⚕️</div>
+                  <div>
+                    <div style="font-size:16px;font-weight:800;color:#1A1A1A;font-family:'Poppins',sans-serif;text-transform:uppercase;letter-spacing:0.3px;">Soy Médico</div>
+                    <div style="font-size:12px;color:#666;font-family:'Poppins',sans-serif;margin-top:4px;line-height:1.5;">Gestioná pacientes,<br>recetas y agenda.</div>
+                  </div>
+                </a>
+              </div>
 
-                        <a href="#/login" class="btn-back">← Volver al ingreso</a>
-                    </div>
-                </div>
-            `;
+              <div style="text-align:center;">
+                <p style="font-size:13px;color:#666;font-family:'Poppins',sans-serif;">
+                  ¿Ya tenés cuenta?
+                  <a href="#/login" style="color:#034C81;font-weight:700;text-decoration:none;margin-left:4px;">Ingresá acá</a>
+                </p>
+              </div>
+            </div>
+            `);
         },
 
+        // ── PATIENT REGISTER ─────────────────────────────────────
         renderPatientRegister(container) {
-            container.innerHTML = `
-                <div class="landing-page">
-                    <div class="landing-bg">
-                        <div class="landing-circle landing-circle-1"></div>
-                    </div>
-                    <div class="landing-content fade-in" style="max-width: 500px; padding: 32px 24px;">
-                        <h2 class="landing-title" style="font-size:26px;">Registro de Paciente</h2>
-                        <p class="landing-subtitle mb-2">Ingresá tus datos para registrarte</p>
-
-                        <form id="patient-register-form">
-                            <div class="form-group">
-                                <label class="form-label" for="reg-dni">DNI</label>
-                                <input type="number" id="reg-dni" class="form-input" placeholder="Ej: 11111111" required>
-                                <div class="form-error hidden" id="reg-dni-error"></div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-name">Nombre y Apellido</label>
-                                <input type="text" id="reg-name" class="form-input" placeholder="Ej: Juan Pérez" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-phone">Celular o Teléfono</label>
-                                <input type="tel" id="reg-phone" class="form-input" placeholder="Ej: 1122334455">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-birth">Fecha de Nacimiento</label>
-                                <input type="date" id="reg-birth" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-obrasocial">Obra Social o Prepaga</label>
-                                <input type="text" id="reg-obrasocial" class="form-input" placeholder="Ej: PAMI, OSDE, Medifé" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-nroafiliado">Número de Afiliado</label>
-                                <input type="text" id="reg-nroafiliado" class="form-input" placeholder="Ej: 9876543210" required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">
-                                REGISTRARME
-                            </button>
-                        </form>
-
-                        <div style="margin-top: 16px;">
-                            <a href="#/register" class="btn-back">← Volver</a>
-                        </div>
-                    </div>
+            container.innerHTML = authPageHTML(authCard(
+                'Registro de Paciente',
+                'Ingresá tus datos personales para crear tu cuenta',
+                '🏥',
+                `
+                ${errorBox('reg-dni-error')}
+                <form id="patient-register-form">
+                  ${field('reg-dni', 'DNI', 'number', 'Ej: 11111111', true, 'pattern="[0-9]{7,8}" inputmode="numeric"')}
+                  ${field('reg-name', 'Nombre y Apellido', 'text', 'Ej: Juan Pérez')}
+                  ${field('reg-phone', 'Celular o Teléfono', 'tel', 'Ej: 1122334455', false)}
+                  ${field('reg-birth', 'Fecha de Nacimiento', 'date', '', true)}
+                  ${field('reg-obrasocial', 'Obra Social o Prepaga', 'text', 'Ej: PAMI, OSDE, Medifé')}
+                  ${field('reg-nroafiliado', 'Número de Afiliado', 'text', 'Ej: 9876543210')}
+                  ${submitBtn('Crear Mi Cuenta')}
+                </form>
+                <div style="margin-top:20px;text-align:center;">
+                  <a href="#/register" style="font-size:13px;color:#666;font-family:'Poppins',sans-serif;text-decoration:none;">← Volver</a>
                 </div>
-            `;
+                `
+            ));
 
             const form = document.getElementById('patient-register-form');
             form.addEventListener('submit', (e) => {
@@ -159,76 +214,47 @@
                 const obraSocial = document.getElementById('reg-obrasocial').value.trim();
                 const nroAfiliado = document.getElementById('reg-nroafiliado').value.trim();
                 const errorDiv = document.getElementById('reg-dni-error');
+                errorDiv.style.display = 'none';
 
                 if (!/^[0-9]{7,8}$/.test(dni)) {
                     errorDiv.textContent = 'El DNI debe tener 7 u 8 números.';
-                    errorDiv.classList.remove('hidden');
+                    errorDiv.style.display = 'block';
                     return;
                 }
 
-                const success = window.HolaDocStorage.savePatient({
-                    dni, name, phone, birthDate, obraSocial, nroAfiliado
-                });
-
+                const success = window.HolaDocStorage.savePatient({ dni, name, phone, birthDate, obraSocial, nroAfiliado });
                 if (success) {
-                    const user = window.HolaDocStorage.getPatient(dni);
                     this.login(dni);
                     window.HolaDocApp.showToast('¡Registro de paciente exitoso!', 'success');
                     window.HolaDocApp.navigate('/patient');
                 } else {
-                    errorDiv.textContent = 'Este DNI ya está registrado.';
-                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = 'Este DNI ya está registrado. Intentá ingresar.';
+                    errorDiv.style.display = 'block';
                 }
             });
         },
 
+        // ── DOCTOR REGISTER ──────────────────────────────────────
         renderDoctorRegister(container) {
-            container.innerHTML = `
-                <div class="landing-page">
-                    <div class="landing-bg">
-                        <div class="landing-circle landing-circle-2"></div>
-                    </div>
-                    <div class="landing-content fade-in" style="max-width: 500px; padding: 32px 24px;">
-                        <h2 class="landing-title" style="font-size:26px;">Registro de Médico</h2>
-                        <p class="landing-subtitle mb-2">Ingresá tus datos profesionales</p>
-
-                        <form id="doctor-register-form">
-                            <div class="form-group">
-                                <label class="form-label" for="reg-dni">DNI</label>
-                                <input type="number" id="reg-dni" class="form-input" placeholder="Ej: 99999999" required>
-                                <div class="form-error hidden" id="reg-dni-error"></div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-name">Nombre completo (con Dr./Dra.)</label>
-                                <input type="text" id="reg-name" class="form-input" placeholder="Ej: Dra. Silvia Pérez" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-matricula">Matrícula Nacional/Provincial</label>
-                                <input type="text" id="reg-matricula" class="form-input" placeholder="Ej: MN12345" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-specialty">Especialidad</label>
-                                <select id="reg-specialty" class="form-select" required>
-                                    <option value="" disabled selected>Seleccioná especialidad</option>
-                                    ${SPECIALTIES.map(s => `<option value="${s}">${s}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="reg-phone">Celular o Teléfono de contacto</label>
-                                <input type="tel" id="reg-phone" class="form-input" placeholder="Ej: 1122334455">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">
-                                REGISTRARME
-                            </button>
-                        </form>
-
-                        <div style="margin-top: 16px;">
-                            <a href="#/register" class="btn-back">← Volver</a>
-                        </div>
-                    </div>
+            container.innerHTML = authPageHTML(authCard(
+                'Registro de Médico',
+                'Ingresá tus datos profesionales para crear tu cuenta',
+                '⚕️',
+                `
+                ${errorBox('reg-dni-error')}
+                <form id="doctor-register-form">
+                  ${field('reg-dni', 'DNI', 'number', 'Ej: 99999999', true, 'pattern="[0-9]{7,8}" inputmode="numeric"')}
+                  ${field('reg-name', 'Nombre completo (con Dr./Dra.)', 'text', 'Ej: Dra. Silvia Pérez')}
+                  ${field('reg-matricula', 'Matrícula Nacional/Provincial', 'text', 'Ej: MN12345')}
+                  ${selectField('reg-specialty', 'Especialidad', SPECIALTIES)}
+                  ${field('reg-phone', 'Celular o Teléfono de contacto', 'tel', 'Ej: 1122334455', false)}
+                  ${submitBtn('Crear Mi Cuenta Profesional')}
+                </form>
+                <div style="margin-top:20px;text-align:center;">
+                  <a href="#/register" style="font-size:13px;color:#666;font-family:'Poppins',sans-serif;text-decoration:none;">← Volver</a>
                 </div>
-            `;
+                `
+            ));
 
             const form = document.getElementById('doctor-register-form');
             form.addEventListener('submit', (e) => {
@@ -239,46 +265,39 @@
                 const specialty = document.getElementById('reg-specialty').value;
                 const phone = document.getElementById('reg-phone').value.trim();
                 const errorDiv = document.getElementById('reg-dni-error');
+                errorDiv.style.display = 'none';
 
                 if (!/^[0-9]{7,8}$/.test(dni)) {
                     errorDiv.textContent = 'El DNI debe tener 7 u 8 números.';
-                    errorDiv.classList.remove('hidden');
+                    errorDiv.style.display = 'block';
                     return;
                 }
 
-                // Default schedule
                 const schedule = {
-                    lunes: { active: true, start: '08:00', end: '16:00' },
-                    martes: { active: true, start: '08:00', end: '16:00' },
-                    miercoles: { active: true, start: '08:00', end: '16:00' },
-                    jueves: { active: true, start: '08:00', end: '16:00' },
-                    viernes: { active: true, start: '08:00', end: '16:00' },
-                    sabado: { active: false, start: '09:00', end: '12:00' },
-                    domingo: { active: false, start: '09:00', end: '12:00' }
+                    lunes:     { active: true,  start: '08:00', end: '16:00' },
+                    martes:    { active: true,  start: '08:00', end: '16:00' },
+                    miercoles: { active: true,  start: '08:00', end: '16:00' },
+                    jueves:    { active: true,  start: '08:00', end: '16:00' },
+                    viernes:   { active: true,  start: '08:00', end: '16:00' },
+                    sabado:    { active: false, start: '09:00', end: '12:00' },
+                    domingo:   { active: false, start: '09:00', end: '12:00' }
                 };
 
-                const success = window.HolaDocStorage.saveDoctor({
-                    dni, name, matricula, specialty, phone, schedule, consultationDuration: '30'
-                });
-
+                const success = window.HolaDocStorage.saveDoctor({ dni, name, matricula, specialty, phone, schedule, consultationDuration: '30' });
                 if (success) {
-                    const user = window.HolaDocStorage.getDoctor(dni);
                     this.login(dni);
                     window.HolaDocApp.showToast('¡Registro profesional exitoso!', 'success');
                     window.HolaDocApp.navigate('/doctor');
                 } else {
-                    errorDiv.textContent = 'Este DNI ya está registrado.';
-                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = 'Este DNI ya está registrado. Intentá ingresar.';
+                    errorDiv.style.display = 'block';
                 }
             });
         },
 
         login(dni) {
             let user = window.HolaDocStorage.getPatient(dni);
-            if (!user) {
-                user = window.HolaDocStorage.getDoctor(dni);
-            }
-
+            if (!user) user = window.HolaDocStorage.getDoctor(dni);
             if (user) {
                 window.HolaDocStorage.setCurrentUser(user);
                 return user;
