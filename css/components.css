@@ -376,10 +376,15 @@
     font-weight: 700;
     color: var(--text-muted);
     cursor: pointer;
+    background: none;
+    border: none;
     border-bottom: 3px solid transparent;
     margin-bottom: -2px;
     transition: all var(--transition-fast);
     white-space: nowrap;
+    outline: none;
+    font-family: inherit;
+    font-size: var(--text-base);
 }
 .tab--active {
     color: var(--primary);

@@ -297,9 +297,9 @@
     font-size: 19px;
   }
 
-  /* Hide bottom nav on desktop */
+  /* Keep bottom nav on desktop for touch simulation and consistent navigation */
   .bottom-nav {
-    display: none;
+    display: flex;
   }
 
   /* Main content — centered, wider */
@@ -307,7 +307,7 @@
     max-width: var(--container-md);
     margin: 0 auto;
     padding: var(--space-7) var(--space-6);
-    padding-bottom: var(--space-7);
+    padding-bottom: calc(var(--bottom-nav-height) + var(--space-7));
   }
 
   .container {
