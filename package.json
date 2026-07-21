@@ -4,7 +4,12 @@
   "description": "App de seguimiento médico-paciente HolaDoc!",
   "main": "index.html",
   "scripts": {
-    "start": "npx -y serve ."
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
+  }
 }
