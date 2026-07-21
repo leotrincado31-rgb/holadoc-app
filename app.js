@@ -133,7 +133,7 @@
             <header class="panel-header" id="panel-header">
                 <div class="panel-header-inner">
                     <div>
-                        <div class="panel-header-logo" id="panel-logo">Hola<em>Doc!</em></div>
+                        <div class="panel-header-logo" id="panel-logo">Tu Doctor <em>de Cabecera</em></div>
                         <div class="panel-user-name">${isPatient ? '👤 Paciente' : '🩺 Médico'} — ${user.name}</div>
                     </div>
                     <div style="display:flex;gap:8px;align-items:center">
@@ -336,7 +336,7 @@
             <div class="topbar-inner">
               <div class="topbar-left">
                 <div class="topbar-item"><span>📞</span> 0800-999-HOLA</div>
-                <div class="topbar-item"><span>✉️</span> contacto@holadoc.com.ar</div>
+                <div class="topbar-item"><span>✉️</span> contacto@tudoctordecabecera.com.ar</div>
                 <div class="topbar-item"><span>🕐</span> Lun–Vie 8:00–20:00</div>
               </div>
               <div class="topbar-right">
@@ -352,7 +352,7 @@
             <div class="navbar-inner">
               <a href="#/" class="navbar-logo">
                 <div class="logo-icon-wrap">🏥</div>
-                <span class="logo-text">Hola<span>Doc!</span></span>
+                <span class="logo-text">Tu Doctor <span>de Cabecera</span></span>
               </a>
               <div class="navbar-links">
                 <button class="nav-link" onclick="document.getElementById('services-section').scrollIntoView({behavior:'smooth'})">Servicios</button>
@@ -437,7 +437,7 @@
               <div class="about-content">
                 <span class="section-label">Quiénes Somos</span>
                 <h2 style="margin-top:8px;margin-bottom:16px">Comprometidos con tu<br><em style="color:var(--primary);font-style:normal">salud y bienestar</em></h2>
-                <p>HolaDoc! nació para simplificar el acceso a la salud en Argentina. Conectamos pacientes con médicos de forma digital, eliminando barreras y tiempos de espera.</p>
+                <p>Tu Doctor de Cabecera nació para simplificar el acceso a la salud en Argentina. Conectamos pacientes con médicos de forma digital, eliminando barreras y tiempos de espera.</p>
                 <div class="about-features">
                   <div class="about-feature">
                     <div class="about-feat-icon">🏥</div>
@@ -532,7 +532,7 @@
           <section style="padding:72px 24px;background:var(--primary);text-align:center" id="contact-section">
             <div style="max-width:600px;margin:0 auto">
               <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.7)">Empezá Hoy</span>
-              <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin:12px 0 16px;line-height:1.15">¿Listo para cuidar<br>tu salud con HolaDoc?</h2>
+              <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin:12px 0 16px;line-height:1.15">¿Listo para cuidar<br>tu salud con Tu Doctor de Cabecera?</h2>
               <p style="color:rgba(255,255,255,0.8);font-size:16px;margin-bottom:32px">Registrate gratis y accedé a todos nuestros servicios de salud digital en minutos.</p>
               <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
                 <a href="#/register" class="btn btn-lg" style="background:#fff;color:var(--primary);border-color:#fff;font-weight:700">Crear Cuenta Gratis</a>
@@ -546,7 +546,7 @@
             <div class="footer-inner">
               <div class="footer-top">
                 <div class="footer-brand">
-                  <div class="footer-logo">Hola<em>Doc!</em></div>
+                  <div class="footer-logo">Tu Doctor <em>de Cabecera</em></div>
                   <p class="footer-desc">La plataforma de salud digital que conecta pacientes y médicos de Argentina de forma simple, segura y eficiente.</p>
                 </div>
                 <div class="footer-col">
@@ -571,13 +571,13 @@
                   <h4>Contacto</h4>
                   <div class="footer-links">
                     <a href="#/">📞 0800-999-HOLA</a>
-                    <a href="#/">✉️ contacto@holadoc.com.ar</a>
+                    <a href="#/">✉️ contacto@tudoctordecabecera.com.ar</a>
                     <a href="#/">📍 Buenos Aires, Argentina</a>
                   </div>
                 </div>
               </div>
               <div class="footer-bottom">
-                <span>© 2025 HolaDoc! — Todos los derechos reservados</span>
+                <span>© 2025 Tu Doctor de Cabecera — Todos los derechos reservados</span>
                 <div class="footer-bottom-links">
                   <a href="#/">Privacidad</a>
                   <a href="#/">Términos</a>

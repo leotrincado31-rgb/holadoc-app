@@ -994,7 +994,7 @@
                         <div class="prescription-header">
                             <div>
                                 <h3 style="font-weight:900; font-size:22px; color:var(--text-primary); margin:0;">RECETA DIGITAL</h3>
-                                <p style="font-size:14px; color:var(--text-muted); margin:4px 0 0 0;">HolaDoc! Salud Remota</p>
+                                <p style="font-size:14px; color:var(--text-muted); margin:4px 0 0 0;">Tu Doctor de Cabecera — Salud Remota</p>
                             </div>
                             <span class="prescription-stamp">OFICIAL</span>
                         </div>
@@ -1018,7 +1018,7 @@
 
                         <div style="text-align:right; margin-top:24px; font-size:16px; font-style:italic;">
                             <p style="margin:0; font-weight:700; color:var(--text-primary);">${req.response.doctorName || req.response.doctorSignature || `Dr./Dra. asignado`}</p>
-                            <p style="margin:0; color:var(--text-muted); font-size:14px;">Firma Digital HolaDoc!</p>
+                            <p style="margin:0; color:var(--text-muted); font-size:14px;">Firma Digital Tu Doctor de Cabecera</p>
                         </div>
                     </div>
                 `;

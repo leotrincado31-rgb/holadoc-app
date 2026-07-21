@@ -175,7 +175,7 @@ async function initDb() {
     // Notification demo
     await dbRun(
       `INSERT INTO notifications (id, userDni, userType, type, title, message, relatedId, read, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      ['not_' + Date.now() + '_1', '11111111', 'patient', 'info', '¡Bienvenido/a a HolaDoc!', 'Tu perfil fue creado correctamente en la base de datos.', '', 0, new Date().toISOString()]
+      ['not_' + Date.now() + '_1', '11111111', 'patient', 'info', '¡Bienvenido/a a Tu Doctor de Cabecera!', 'Tu perfil fue creado correctamente en la base de datos.', '', 0, new Date().toISOString()]
     );
 
     // Health data demo
@@ -612,7 +612,7 @@ app.delete('/api/blocked-dates', async (req, res) => {
 initDb().then(() => {
   app.listen(PORT, () => {
     console.log(`=================================================`);
-    console.log(` Servidor HolaDoc! corriendo en http://localhost:${PORT}`);
+    console.log(` Servidor Tu Doctor de Cabecera corriendo en http://localhost:${PORT}`);
     console.log(` Base de datos relacional SQLite inicializada.`);
     console.log(`=================================================`);
   });

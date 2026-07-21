@@ -17,7 +17,7 @@
           <nav style="background:#fff;border-bottom:1px solid #E0E0E0;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;z-index:10;">
             <a href="#/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
               <div style="width:38px;height:38px;background:#034C81;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;">🏥</div>
-              <span style="font-size:20px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;font-family:'Poppins',sans-serif;">Hola<span style="color:#034C81;">Doc!</span></span>
+              <span style="font-size:20px;font-weight:800;color:#1A1A1A;letter-spacing:-0.5px;font-family:'Poppins',sans-serif;">Tu Doctor <span style="color:#034C81;">de Cabecera</span></span>
             </a>
             <a href="#/" style="font-size:13px;font-weight:600;color:#666;text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">← Volver al inicio</a>
           </nav>
@@ -29,7 +29,7 @@
 
           <!-- Footer mini -->
           <div style="background:#1E1E1E;padding:16px 24px;text-align:center;position:relative;z-index:10;">
-            <span style="font-size:12px;color:rgba(255,255,255,0.4);font-family:'Poppins',sans-serif;">© 2025 HolaDoc! — Plataforma de Salud Digital</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.4);font-family:'Poppins',sans-serif;">© 2025 Tu Doctor de Cabecera — Plataforma de Salud Digital</span>
           </div>
         </div>
         `;

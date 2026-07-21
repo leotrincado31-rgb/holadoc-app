@@ -1,7 +1,7 @@
 {
-  "name": "holadoc",
+  "name": "tudoctordecabecera",
   "version": "1.0.0",
-  "description": "App de seguimiento médico-paciente HolaDoc!",
+  "description": "Plataforma de seguimiento médico-paciente Tu Doctor de Cabecera",
   "main": "index.html",
   "scripts": {
     "start": "node server.js",
