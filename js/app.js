@@ -1,4 +1,4 @@
-/**
+./**
  * HolaDoc! — App Router & Main Controller
  * Handles SPA routing, layout rendering, and module coordination.
  * All text in Spanish.
