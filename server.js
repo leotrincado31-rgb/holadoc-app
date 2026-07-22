@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { sql } = require('@vercel/postgres');
+const { db } = require('@vercel/postgres');
 require('dotenv').config(); // Load .env for local development
 const path = require('path');
 const fs = require('fs');
@@ -29,20 +29,34 @@ function buildQuery(queryStr, params = []) {
 // Helper for promise-based db runs and queries
 async function dbRun(queryStr, params = []) {
   const { text, values } = buildQuery(queryStr, params);
-  const result = await sql.query(text, values);
-  return result;
+  const client = await db.connect();
+  try {
+    return await client.query(text, values);
+  } finally {
+    client.release();
+  }
 }
 
 async function dbAll(queryStr, params = []) {
   const { text, values } = buildQuery(queryStr, params);
-  const result = await sql.query(text, values);
-  return result.rows;
+  const client = await db.connect();
+  try {
+    const result = await client.query(text, values);
+    return result.rows;
+  } finally {
+    client.release();
+  }
 }
 
 async function dbGet(queryStr, params = []) {
   const { text, values } = buildQuery(queryStr, params);
-  const result = await sql.query(text, values);
-  return result.rows[0];
+  const client = await db.connect();
+  try {
+    const result = await client.query(text, values);
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
 }
 
 // Create database schema
