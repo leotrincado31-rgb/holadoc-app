@@ -1,37 +1,120 @@
 /**
- * HolaDoc! — Data Storage and Persistence layer
- * Connected to SQLite Backend REST API.
+ * Tu Doctor de Cabecera — Hybrid Data Storage and Persistence layer
+ * Connected to API with fast 2-second timeout and automatic LocalStorage fallback.
  */
 (function() {
     'use strict';
 
-    // ── Backend API Configuration ───────────────────────────────
     const API_BASE = '/api';
+
+    // Local Storage Fallback Helpers
+    function getLS(key, defaultValue = []) {
+        try {
+            const data = localStorage.getItem('tdc_' + key);
+            return data ? JSON.parse(data) : defaultValue;
+        } catch (e) {
+            return defaultValue;
+        }
+    }
+
+    function setLS(key, value) {
+        try {
+            localStorage.setItem('tdc_' + key, JSON.stringify(value));
+        } catch (e) {}
+    }
 
     async function apiRequest(endpoint, method = 'GET', data = null) {
         const options = {
             method,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         };
         if (data && (method === 'POST' || method === 'PUT' || method === 'DELETE')) {
             options.body = JSON.stringify(data);
         }
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+        options.signal = controller.signal;
+
         try {
             const response = await fetch(API_BASE + endpoint, options);
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error || 'Error en la respuesta del servidor');
-            }
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error('Error HTTP ' + response.status);
             return await response.json();
         } catch (err) {
-            console.warn(`[HolaDoc Storage] Error API ${method} ${endpoint}:`, err.message);
-            // Return fallback default values if server is offline
-            if (method === 'GET') return Array.isArray(data) ? [] : null;
-            throw err;
+            clearTimeout(timeoutId);
+            // LocalStorage Fallback logic
+            return handleLSFallback(endpoint, method, data);
         }
+    }
+
+    function handleLSFallback(endpoint, method, data) {
+        // Patients
+        if (endpoint === '/patients' && method === 'GET') return getLS('patients', []);
+        if (endpoint.startsWith('/patients/') && method === 'GET') {
+            const dni = decodeURIComponent(endpoint.split('/patients/')[1]);
+            return getLS('patients', []).find(p => p.dni === dni) || null;
+        }
+        if (endpoint === '/patients' && method === 'POST') {
+            const list = getLS('patients', []);
+            if (list.some(p => p.dni === data.dni)) throw new Error('DNI existente');
+            list.push(data);
+            setLS('patients', list);
+            return data;
+        }
+        if (endpoint.startsWith('/patients/') && method === 'PUT') {
+            const dni = decodeURIComponent(endpoint.split('/patients/')[1]);
+            const list = getLS('patients', []);
+            const idx = list.findIndex(p => p.dni === dni);
+            if (idx !== -1) {
+                list[idx] = { ...list[idx], ...data };
+                setLS('patients', list);
+                return list[idx];
+            }
+            return null;
+        }
+
+        // Doctors
+        if (endpoint === '/doctors' && method === 'GET') return getLS('doctors', []);
+        if (endpoint.startsWith('/doctors/') && method === 'GET') {
+            const dni = decodeURIComponent(endpoint.split('/doctors/')[1]);
+            return getLS('doctors', []).find(d => d.dni === dni) || null;
+        }
+        if (endpoint === '/doctors' && method === 'POST') {
+            const list = getLS('doctors', []);
+            if (list.some(d => d.dni === data.dni)) throw new Error('DNI existente');
+            list.push(data);
+            setLS('doctors', list);
+            return data;
+        }
+
+        // Appointments
+        if (endpoint.startsWith('/appointments') && method === 'GET') {
+            return getLS('appointments', []);
+        }
+        if (endpoint === '/appointments' && method === 'POST') {
+            const list = getLS('appointments', []);
+            data.id = data.id || 'app_' + Date.now();
+            list.push(data);
+            setLS('appointments', list);
+            return data;
+        }
+
+        // Requests
+        if (endpoint.startsWith('/requests') && method === 'GET') {
+            return getLS('requests', []);
+        }
+        if (endpoint === '/requests' && method === 'POST') {
+            const list = getLS('requests', []);
+            data.id = data.id || 'req_' + Date.now();
+            list.push(data);
+            setLS('requests', list);
+            return data;
+        }
+
+        // Default fallback
+        if (method === 'GET') return [];
+        return data || { success: true };
     }
 
     window.HolaDocStorage = {
@@ -51,7 +134,7 @@
 
         async savePatient(data) {
             try {
-                const res = await apiRequest('/patients', 'POST', data);
+                await apiRequest('/patients', 'POST', data);
                 return true;
             } catch (e) {
                 return false;
@@ -98,7 +181,9 @@
 
         // ---- Session ----
         setCurrentUser(user) {
-            sessionStorage.setItem('holadoc_session', JSON.stringify(user));
+            try {
+                sessionStorage.setItem('holadoc_session', JSON.stringify(user));
+            } catch (e) {}
         },
 
         getCurrentUser() {
@@ -116,7 +201,9 @@
         },
 
         clearCurrentUser() {
-            sessionStorage.removeItem('holadoc_session');
+            try {
+                sessionStorage.removeItem('holadoc_session');
+            } catch (e) {}
         },
 
         // ---- Appointments ----
@@ -223,7 +310,7 @@
         },
 
         async seedDemoData() {
-            // Managed directly by backend SQLite initDb()
+            // Self-managed
         }
     };
 })();

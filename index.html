@@ -139,16 +139,20 @@
     <script src="js/app.js?v=8"></script>
 
     <script>
-      // Remove loader after app initializes
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          var loader = document.getElementById('initial-loader');
-          if (loader) {
-            loader.classList.add('fade-out');
-            setTimeout(function() { loader.remove(); }, 400);
-          }
-        }, 600);
-      });
+      // Remove loader after app initializes with emergency timeout
+      function hideLoader() {
+        var loader = document.getElementById('initial-loader');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(function() { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 400);
+        }
+      }
+      if (document.readyState === 'complete') {
+        setTimeout(hideLoader, 300);
+      } else {
+        window.addEventListener('load', function() { setTimeout(hideLoader, 300); });
+        setTimeout(hideLoader, 1500);
+      }
     </script>
 </body>
 </html>
