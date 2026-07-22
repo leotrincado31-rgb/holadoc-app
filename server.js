@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const { sql } = require('@vercel/postgres');
+require('dotenv').config(); // Load .env for local development
 const path = require('path');
 const fs = require('fs');
 
@@ -13,90 +14,83 @@ app.use(express.json());
 // Serve static frontend files
 app.use(express.static(path.join(__dirname)));
 
-// Initialize SQLite database
-const dbPath = path.join(__dirname, 'holadoc.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error al conectar con SQLite:', err.message);
-  } else {
-    console.log('Conectado exitosamente a la base de datos SQLite (holadoc.db)');
+// Helper to convert sqlite `?` to postgres `$1, $2`
+function buildQuery(queryStr, params = []) {
+  let text = queryStr;
+  let values = params;
+  let count = 1;
+  while (text.includes('?')) {
+    text = text.replace('?', `$${count}`);
+    count++;
   }
-});
+  return { text, values };
+}
 
 // Helper for promise-based db runs and queries
-function dbRun(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
+async function dbRun(queryStr, params = []) {
+  const { text, values } = buildQuery(queryStr, params);
+  const result = await sql.query(text, values);
+  return result;
 }
 
-function dbAll(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
+async function dbAll(queryStr, params = []) {
+  const { text, values } = buildQuery(queryStr, params);
+  const result = await sql.query(text, values);
+  return result.rows;
 }
 
-function dbGet(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
+async function dbGet(queryStr, params = []) {
+  const { text, values } = buildQuery(queryStr, params);
+  const result = await sql.query(text, values);
+  return result.rows[0];
 }
 
 // Create database schema
 async function initDb() {
   await dbRun(`CREATE TABLE IF NOT EXISTS patients (
-    dni TEXT PRIMARY KEY,
-    name TEXT,
-    phone TEXT,
-    birthDate TEXT,
-    obraSocial TEXT,
-    nroAfiliado TEXT,
-    type TEXT DEFAULT 'patient',
-    createdAt TEXT
+    dni VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255),
+    phone VARCHAR(255),
+    birthDate VARCHAR(255),
+    obraSocial VARCHAR(255),
+    nroAfiliado VARCHAR(255),
+    type VARCHAR(50) DEFAULT 'patient',
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await dbRun(`CREATE TABLE IF NOT EXISTS doctors (
-    dni TEXT PRIMARY KEY,
-    name TEXT,
-    matricula TEXT,
-    specialty TEXT,
-    phone TEXT,
-    consultationDuration TEXT,
+    dni VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255),
+    matricula VARCHAR(255),
+    specialty VARCHAR(255),
+    phone VARCHAR(255),
+    consultationDuration VARCHAR(255),
     schedule TEXT,
-    type TEXT DEFAULT 'doctor',
-    createdAt TEXT
+    type VARCHAR(50) DEFAULT 'doctor',
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await dbRun(`CREATE TABLE IF NOT EXISTS appointments (
-    id TEXT PRIMARY KEY,
-    patientDni TEXT,
-    doctorDni TEXT,
-    date TEXT,
-    time TEXT,
+    id VARCHAR(255) PRIMARY KEY,
+    patientDni VARCHAR(255),
+    doctorDni VARCHAR(255),
+    date VARCHAR(255),
+    time VARCHAR(255),
     reason TEXT,
-    status TEXT DEFAULT 'pendiente',
-    type TEXT,
+    status VARCHAR(50) DEFAULT 'pendiente',
+    type VARCHAR(50),
     notes TEXT,
-    createdAt TEXT
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await dbRun(`CREATE TABLE IF NOT EXISTS requests (
-    id TEXT PRIMARY KEY,
-    patientDni TEXT,
-    doctorDni TEXT,
-    type TEXT,
-    status TEXT DEFAULT 'pendiente',
+    id VARCHAR(255) PRIMARY KEY,
+    patientDni VARCHAR(255),
+    doctorDni VARCHAR(255),
+    type VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'pendiente',
     details TEXT,
-    createdAt TEXT
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await dbRun(`CREATE TABLE IF NOT EXISTS records (
