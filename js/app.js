@@ -73,11 +73,24 @@
     }
 
     function getNotificationBadge() {
+        return ''; // Updated asynchronously via updateNotificationBadges
+    }
+
+    function updateNotificationBadges() {
         const user = window.HolaDocStorage.getCurrentUser();
-        if (!user) return '';
-        const count = window.HolaDocStorage.getUnreadCount(user.dni, user.type);
-        if (count === 0) return '';
-        return `<span class="notification-badge nav-badge">${count > 9 ? '9+' : count}</span>`;
+        if (!user) return;
+        window.HolaDocStorage.getUnreadCount(user.dni, user.type).then(count => {
+            const bell = document.getElementById('navbar-bell');
+            if (bell) {
+                const badge = bell.querySelector('.notification-badge');
+                if (count > 0) {
+                    if (badge) badge.textContent = count > 9 ? '9+' : count;
+                    else bell.innerHTML = `🔔<span class="notification-badge nav-badge">${count > 9 ? '9+' : count}</span>`;
+                } else if (badge) {
+                    badge.remove();
+                }
+            }
+        });
     }
 
     // ── Layout Renderer ────────────────────────────────────────
@@ -120,7 +133,7 @@
             <header class="panel-header" id="panel-header">
                 <div class="panel-header-inner">
                     <div>
-                        <div class="panel-header-logo" id="panel-logo">Hola<em>Doc!</em></div>
+                        <div class="panel-header-logo" id="panel-logo">Tu Doctor <em>de Cabecera</em></div>
                         <div class="panel-user-name">${isPatient ? '👤 Paciente' : '🩺 Médico'} — ${user.name}</div>
                     </div>
                     <div style="display:flex;gap:8px;align-items:center">
@@ -148,6 +161,7 @@
     }
 
     function setupNavbarListeners(user) {
+        updateNotificationBadges();
         // Logo click -> home
         const logo = document.getElementById('panel-logo');
         if (logo) {
@@ -187,118 +201,124 @@
     }
 
     // ── Route Handler ──────────────────────────────────────────
-    function handleRoute() {
-        const hash = window.location.hash.replace('#', '') || '/';
-        const parts = hash.split('/').filter(Boolean);
+    async function handleRoute() {
+        try {
+            const hash = window.location.hash.replace('#', '') || '/';
+            const parts = hash.split('/').filter(Boolean);
 
-        // Determine route and params
-        let route = '/' + parts.join('/');
-        let params = {};
+            // Determine route and params
+            let route = '/' + parts.join('/');
+            let params = {};
 
-        // Extract dynamic params
-        // /doctor/paciente/12345678 -> route=/doctor/paciente, params.dni=12345678
-        if (parts[0] === 'doctor' && parts[1] === 'paciente' && parts[2]) {
-            route = '/doctor/paciente';
-            params.dni = parts[2];
-            params.tab = parts[3] || 'historia';
-        }
-        // /patient/solicitud/req_123 -> route=/patient/solicitud, params.id=req_123
-        if (parts[0] === 'patient' && parts[1] === 'solicitud' && parts[2]) {
-            route = '/patient/solicitud';
-            params.id = parts[2];
-        }
+            // Extract dynamic params
+            if (parts[0] === 'doctor' && parts[1] === 'paciente' && parts[2]) {
+                route = '/doctor/paciente';
+                params.dni = parts[2];
+                params.tab = parts[3] || 'historia';
+            }
+            if (parts[0] === 'patient' && parts[1] === 'solicitud' && parts[2]) {
+                route = '/patient/solicitud';
+                params.id = parts[2];
+            }
 
-        const container = renderLayout(route);
-        if (!container) return;
+            const container = renderLayout(route);
+            if (!container) return;
 
-        // Route to handler
-        const routeKey = ROUTES[route];
-        switch (routeKey) {
-            // ── Public ──
-            case 'landing':
+            // Route to handler
+            const routeKey = ROUTES[route] || 'landing';
+            switch (routeKey) {
+                // ── Public ──
+                case 'landing':
+                    renderLanding(container);
+                    break;
+                case 'login':
+                    window.HolaDocAuth.renderLogin(container);
+                    break;
+                case 'register':
+                    window.HolaDocAuth.renderRegister(container);
+                    break;
+                case 'registerPatient':
+                    window.HolaDocAuth.renderPatientRegister(container);
+                    break;
+                case 'registerDoctor':
+                    window.HolaDocAuth.renderDoctorRegister(container);
+                    break;
+
+                // ── Patient ──
+                case 'patientDashboard':
+                    await window.HolaDocPatient.renderDashboard(container);
+                    break;
+                case 'patientAppointment':
+                    await window.HolaDocPatient.renderAppointment(container);
+                    break;
+                case 'patientReceta':
+                    await window.HolaDocPatient.renderRequest(container, 'receta');
+                    break;
+                case 'patientDerivacion':
+                    await window.HolaDocPatient.renderRequest(container, 'derivacion');
+                    break;
+                case 'patientEstudio':
+                    await window.HolaDocPatient.renderRequest(container, 'estudio');
+                    break;
+                case 'patientInternacion':
+                    await window.HolaDocPatient.renderRequest(container, 'internacion');
+                    break;
+                case 'patientHealth':
+                    await window.HolaDocPatient.renderHealth(container);
+                    break;
+                case 'patientHistory':
+                    await window.HolaDocPatient.renderHistory(container);
+                    break;
+                case 'patientNotifications':
+                    if (window.HolaDocNotifications) {
+                        await window.HolaDocNotifications.renderPage(container);
+                    }
+                    break;
+                case 'patientRequestDetail':
+                    await window.HolaDocPatient.renderRequestDetail(container, params.id);
+                    break;
+
+                // ── Doctor ──
+                case 'doctorDashboard':
+                    await window.HolaDocDoctor.renderDashboard(container);
+                    break;
+                case 'doctorSchedule':
+                    await window.HolaDocDoctor.renderSchedule(container);
+                    break;
+                case 'doctorPatients':
+                    await window.HolaDocDoctor.renderPatients(container);
+                    break;
+                case 'doctorPatientDetail':
+                    await window.HolaDocDoctor.renderPatientDetail(container, params.dni, params.tab);
+                    break;
+                case 'doctorRequests':
+                    await window.HolaDocDoctor.renderRequests(container);
+                    break;
+                case 'doctorNotifications':
+                    if (window.HolaDocNotifications) {
+                        await window.HolaDocNotifications.renderPage(container);
+                    }
+                    break;
+
+                default:
+                    renderLanding(container);
+                    break;
+            }
+
+            // Update bottom nav active state
+            updateBottomNav(route);
+
+            // Start notification polling for logged-in users
+            const user = window.HolaDocStorage.getCurrentUser();
+            if (user && window.HolaDocNotifications) {
+                window.HolaDocNotifications.init(user.dni, user.type);
+            }
+        } catch (err) {
+            console.error('Error en handleRoute:', err);
+            const container = document.getElementById('page-content') || document.getElementById('app');
+            if (container) {
                 renderLanding(container);
-                break;
-            case 'login':
-                window.HolaDocAuth.renderLogin(container);
-                break;
-            case 'register':
-                window.HolaDocAuth.renderRegister(container);
-                break;
-            case 'registerPatient':
-                window.HolaDocAuth.renderPatientRegister(container);
-                break;
-            case 'registerDoctor':
-                window.HolaDocAuth.renderDoctorRegister(container);
-                break;
-
-            // ── Patient ──
-            case 'patientDashboard':
-                window.HolaDocPatient.renderDashboard(container);
-                break;
-            case 'patientAppointment':
-                window.HolaDocPatient.renderAppointment(container);
-                break;
-            case 'patientReceta':
-                window.HolaDocPatient.renderRequest(container, 'receta');
-                break;
-            case 'patientDerivacion':
-                window.HolaDocPatient.renderRequest(container, 'derivacion');
-                break;
-            case 'patientEstudio':
-                window.HolaDocPatient.renderRequest(container, 'estudio');
-                break;
-            case 'patientInternacion':
-                window.HolaDocPatient.renderRequest(container, 'internacion');
-                break;
-            case 'patientHealth':
-                window.HolaDocPatient.renderHealth(container);
-                break;
-            case 'patientHistory':
-                window.HolaDocPatient.renderHistory(container);
-                break;
-            case 'patientNotifications':
-                if (window.HolaDocNotifications) {
-                    window.HolaDocNotifications.renderPage(container);
-                }
-                break;
-            case 'patientRequestDetail':
-                window.HolaDocPatient.renderRequestDetail(container, params.id);
-                break;
-
-            // ── Doctor ──
-            case 'doctorDashboard':
-                window.HolaDocDoctor.renderDashboard(container);
-                break;
-            case 'doctorSchedule':
-                window.HolaDocDoctor.renderSchedule(container);
-                break;
-            case 'doctorPatients':
-                window.HolaDocDoctor.renderPatients(container);
-                break;
-            case 'doctorPatientDetail':
-                window.HolaDocDoctor.renderPatientDetail(container, params.dni, params.tab);
-                break;
-            case 'doctorRequests':
-                window.HolaDocDoctor.renderRequests(container);
-                break;
-            case 'doctorNotifications':
-                if (window.HolaDocNotifications) {
-                    window.HolaDocNotifications.renderPage(container);
-                }
-                break;
-
-            default:
-                render404(container);
-                break;
-        }
-
-        // Update bottom nav active state
-        updateBottomNav(route);
-
-        // Start notification polling for logged-in users
-        const user = window.HolaDocStorage.getCurrentUser();
-        if (user && window.HolaDocNotifications) {
-            window.HolaDocNotifications.init(user.dni, user.type);
+            }
         }
     }
 
@@ -322,7 +342,7 @@
             <div class="topbar-inner">
               <div class="topbar-left">
                 <div class="topbar-item"><span>📞</span> 0800-999-HOLA</div>
-                <div class="topbar-item"><span>✉️</span> contacto@holadoc.com.ar</div>
+                <div class="topbar-item"><span>✉️</span> contacto@tudoctordecabecera.com.ar</div>
                 <div class="topbar-item"><span>🕐</span> Lun–Vie 8:00–20:00</div>
               </div>
               <div class="topbar-right">
@@ -338,7 +358,7 @@
             <div class="navbar-inner">
               <a href="#/" class="navbar-logo">
                 <div class="logo-icon-wrap">🏥</div>
-                <span class="logo-text">Hola<span>Doc!</span></span>
+                <span class="logo-text">Tu Doctor <span>de Cabecera</span></span>
               </a>
               <div class="navbar-links">
                 <button class="nav-link" onclick="document.getElementById('services-section').scrollIntoView({behavior:'smooth'})">Servicios</button>
@@ -423,7 +443,7 @@
               <div class="about-content">
                 <span class="section-label">Quiénes Somos</span>
                 <h2 style="margin-top:8px;margin-bottom:16px">Comprometidos con tu<br><em style="color:var(--primary);font-style:normal">salud y bienestar</em></h2>
-                <p>HolaDoc! nació para simplificar el acceso a la salud en Argentina. Conectamos pacientes con médicos de forma digital, eliminando barreras y tiempos de espera.</p>
+                <p>Tu Doctor de Cabecera nació para simplificar el acceso a la salud en Argentina. Conectamos pacientes con médicos de forma digital, eliminando barreras y tiempos de espera.</p>
                 <div class="about-features">
                   <div class="about-feature">
                     <div class="about-feat-icon">🏥</div>
@@ -518,7 +538,7 @@
           <section style="padding:72px 24px;background:var(--primary);text-align:center" id="contact-section">
             <div style="max-width:600px;margin:0 auto">
               <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.7)">Empezá Hoy</span>
-              <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin:12px 0 16px;line-height:1.15">¿Listo para cuidar<br>tu salud con HolaDoc?</h2>
+              <h2 style="font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin:12px 0 16px;line-height:1.15">¿Listo para cuidar<br>tu salud con Tu Doctor de Cabecera?</h2>
               <p style="color:rgba(255,255,255,0.8);font-size:16px;margin-bottom:32px">Registrate gratis y accedé a todos nuestros servicios de salud digital en minutos.</p>
               <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
                 <a href="#/register" class="btn btn-lg" style="background:#fff;color:var(--primary);border-color:#fff;font-weight:700">Crear Cuenta Gratis</a>
@@ -532,7 +552,7 @@
             <div class="footer-inner">
               <div class="footer-top">
                 <div class="footer-brand">
-                  <div class="footer-logo">Hola<em>Doc!</em></div>
+                  <div class="footer-logo">Tu Doctor <em>de Cabecera</em></div>
                   <p class="footer-desc">La plataforma de salud digital que conecta pacientes y médicos de Argentina de forma simple, segura y eficiente.</p>
                 </div>
                 <div class="footer-col">
@@ -557,13 +577,13 @@
                   <h4>Contacto</h4>
                   <div class="footer-links">
                     <a href="#/">📞 0800-999-HOLA</a>
-                    <a href="#/">✉️ contacto@holadoc.com.ar</a>
+                    <a href="#/">✉️ contacto@tudoctordecabecera.com.ar</a>
                     <a href="#/">📍 Buenos Aires, Argentina</a>
                   </div>
                 </div>
               </div>
               <div class="footer-bottom">
-                <span>© 2025 HolaDoc! — Todos los derechos reservados</span>
+                <span>© 2025 Tu Doctor de Cabecera — Todos los derechos reservados</span>
                 <div class="footer-bottom-links">
                   <a href="#/">Privacidad</a>
                   <a href="#/">Términos</a>
