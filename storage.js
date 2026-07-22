@@ -6,9 +6,7 @@
     'use strict';
 
     // ── Backend API Configuration ───────────────────────────────
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? ''
-        : 'https://holadoc-app.onrender.com';
+    const API_BASE = '/api';
 
     async function apiRequest(endpoint, method = 'GET', data = null) {
         const options = {
