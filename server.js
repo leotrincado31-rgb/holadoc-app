@@ -608,14 +608,21 @@ app.delete('/api/blocked-dates', async (req, res) => {
   }
 });
 
-// Start Server after DB init
-initDb().then(() => {
-  app.listen(PORT, () => {
-    console.log(`=================================================`);
-    console.log(` Servidor Tu Doctor de Cabecera corriendo en http://localhost:${PORT}`);
-    console.log(` Base de datos relacional SQLite inicializada.`);
-    console.log(`=================================================`);
+// Export app for Vercel Serverless Functions
+module.exports = app;
+
+// Start Server locally if not running on Vercel
+if (!process.env.VERCEL) {
+  initDb().then(() => {
+    app.listen(PORT, () => {
+      console.log(`=================================================`);
+      console.log(` Servidor Tu Doctor de Cabecera corriendo en http://localhost:${PORT}`);
+      console.log(` Base de datos relacional SQLite inicializada.`);
+      console.log(`=================================================`);
+    });
+  }).catch(err => {
+    console.error('Error al inicializar la base de datos:', err);
   });
-}).catch(err => {
-  console.error('Error al inicializar la base de datos:', err);
-});
+} else {
+  initDb().catch(err => console.error('Error initDb en Vercel:', err));
+}
