@@ -102,8 +102,17 @@
         },
 
         getCurrentUser() {
-            const session = sessionStorage.getItem('holadoc_session');
-            return session ? JSON.parse(session) : null;
+            try {
+                const session = sessionStorage.getItem('holadoc_session');
+                if (!session) return null;
+                const user = JSON.parse(session);
+                if (user && user.dni && user.type) return user;
+                sessionStorage.removeItem('holadoc_session');
+                return null;
+            } catch (e) {
+                sessionStorage.removeItem('holadoc_session');
+                return null;
+            }
         },
 
         clearCurrentUser() {

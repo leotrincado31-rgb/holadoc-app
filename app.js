@@ -202,117 +202,123 @@
 
     // ── Route Handler ──────────────────────────────────────────
     async function handleRoute() {
-        const hash = window.location.hash.replace('#', '') || '/';
-        const parts = hash.split('/').filter(Boolean);
+        try {
+            const hash = window.location.hash.replace('#', '') || '/';
+            const parts = hash.split('/').filter(Boolean);
 
-        // Determine route and params
-        let route = '/' + parts.join('/');
-        let params = {};
+            // Determine route and params
+            let route = '/' + parts.join('/');
+            let params = {};
 
-        // Extract dynamic params
-        // /doctor/paciente/12345678 -> route=/doctor/paciente, params.dni=12345678
-        if (parts[0] === 'doctor' && parts[1] === 'paciente' && parts[2]) {
-            route = '/doctor/paciente';
-            params.dni = parts[2];
-            params.tab = parts[3] || 'historia';
-        }
-        // /patient/solicitud/req_123 -> route=/patient/solicitud, params.id=req_123
-        if (parts[0] === 'patient' && parts[1] === 'solicitud' && parts[2]) {
-            route = '/patient/solicitud';
-            params.id = parts[2];
-        }
+            // Extract dynamic params
+            if (parts[0] === 'doctor' && parts[1] === 'paciente' && parts[2]) {
+                route = '/doctor/paciente';
+                params.dni = parts[2];
+                params.tab = parts[3] || 'historia';
+            }
+            if (parts[0] === 'patient' && parts[1] === 'solicitud' && parts[2]) {
+                route = '/patient/solicitud';
+                params.id = parts[2];
+            }
 
-        const container = renderLayout(route);
-        if (!container) return;
+            const container = renderLayout(route);
+            if (!container) return;
 
-        // Route to handler
-        const routeKey = ROUTES[route];
-        switch (routeKey) {
-            // ── Public ──
-            case 'landing':
+            // Route to handler
+            const routeKey = ROUTES[route] || 'landing';
+            switch (routeKey) {
+                // ── Public ──
+                case 'landing':
+                    renderLanding(container);
+                    break;
+                case 'login':
+                    window.HolaDocAuth.renderLogin(container);
+                    break;
+                case 'register':
+                    window.HolaDocAuth.renderRegister(container);
+                    break;
+                case 'registerPatient':
+                    window.HolaDocAuth.renderPatientRegister(container);
+                    break;
+                case 'registerDoctor':
+                    window.HolaDocAuth.renderDoctorRegister(container);
+                    break;
+
+                // ── Patient ──
+                case 'patientDashboard':
+                    await window.HolaDocPatient.renderDashboard(container);
+                    break;
+                case 'patientAppointment':
+                    await window.HolaDocPatient.renderAppointment(container);
+                    break;
+                case 'patientReceta':
+                    await window.HolaDocPatient.renderRequest(container, 'receta');
+                    break;
+                case 'patientDerivacion':
+                    await window.HolaDocPatient.renderRequest(container, 'derivacion');
+                    break;
+                case 'patientEstudio':
+                    await window.HolaDocPatient.renderRequest(container, 'estudio');
+                    break;
+                case 'patientInternacion':
+                    await window.HolaDocPatient.renderRequest(container, 'internacion');
+                    break;
+                case 'patientHealth':
+                    await window.HolaDocPatient.renderHealth(container);
+                    break;
+                case 'patientHistory':
+                    await window.HolaDocPatient.renderHistory(container);
+                    break;
+                case 'patientNotifications':
+                    if (window.HolaDocNotifications) {
+                        await window.HolaDocNotifications.renderPage(container);
+                    }
+                    break;
+                case 'patientRequestDetail':
+                    await window.HolaDocPatient.renderRequestDetail(container, params.id);
+                    break;
+
+                // ── Doctor ──
+                case 'doctorDashboard':
+                    await window.HolaDocDoctor.renderDashboard(container);
+                    break;
+                case 'doctorSchedule':
+                    await window.HolaDocDoctor.renderSchedule(container);
+                    break;
+                case 'doctorPatients':
+                    await window.HolaDocDoctor.renderPatients(container);
+                    break;
+                case 'doctorPatientDetail':
+                    await window.HolaDocDoctor.renderPatientDetail(container, params.dni, params.tab);
+                    break;
+                case 'doctorRequests':
+                    await window.HolaDocDoctor.renderRequests(container);
+                    break;
+                case 'doctorNotifications':
+                    if (window.HolaDocNotifications) {
+                        await window.HolaDocNotifications.renderPage(container);
+                    }
+                    break;
+
+                default:
+                    renderLanding(container);
+                    break;
+            }
+
+            // Update bottom nav active state
+            updateBottomNav(route);
+
+            // Start notification polling for logged-in users
+            const user = window.HolaDocStorage.getCurrentUser();
+            if (user && window.HolaDocNotifications) {
+                window.HolaDocNotifications.init(user.dni, user.type);
+            }
+        } catch (err) {
+            console.error('Error en handleRoute:', err);
+            const container = document.getElementById('page-content') || document.getElementById('app');
+            if (container) {
                 renderLanding(container);
-                break;
-            case 'login':
-                window.HolaDocAuth.renderLogin(container);
-                break;
-            case 'register':
-                window.HolaDocAuth.renderRegister(container);
-                break;
-            case 'registerPatient':
-                window.HolaDocAuth.renderPatientRegister(container);
-                break;
-            case 'registerDoctor':
-                window.HolaDocAuth.renderDoctorRegister(container);
-                break;
-
-            // ── Patient ──
-            case 'patientDashboard':
-                await window.HolaDocPatient.renderDashboard(container);
-                break;
-            case 'patientAppointment':
-                await window.HolaDocPatient.renderAppointment(container);
-                break;
-            case 'patientReceta':
-                await window.HolaDocPatient.renderRequest(container, 'receta');
-                break;
-            case 'patientDerivacion':
-                await window.HolaDocPatient.renderRequest(container, 'derivacion');
-                break;
-            case 'patientEstudio':
-                await window.HolaDocPatient.renderRequest(container, 'estudio');
-                break;
-            case 'patientInternacion':
-                await window.HolaDocPatient.renderRequest(container, 'internacion');
-                break;
-            case 'patientHealth':
-                await window.HolaDocPatient.renderHealth(container);
-                break;
-            case 'patientHistory':
-                await window.HolaDocPatient.renderHistory(container);
-                break;
-            case 'patientNotifications':
-                if (window.HolaDocNotifications) {
-                    await window.HolaDocNotifications.renderPage(container);
-                }
-                break;
-            case 'patientRequestDetail':
-                await window.HolaDocPatient.renderRequestDetail(container, params.id);
-                break;
-
-            // ── Doctor ──
-            case 'doctorDashboard':
-                await window.HolaDocDoctor.renderDashboard(container);
-                break;
-            case 'doctorSchedule':
-                await window.HolaDocDoctor.renderSchedule(container);
-                break;
-            case 'doctorPatients':
-                await window.HolaDocDoctor.renderPatients(container);
-                break;
-            case 'doctorPatientDetail':
-                await window.HolaDocDoctor.renderPatientDetail(container, params.dni, params.tab);
-                break;
-            case 'doctorRequests':
-                await window.HolaDocDoctor.renderRequests(container);
-                break;
-            case 'doctorNotifications':
-                if (window.HolaDocNotifications) {
-                    await window.HolaDocNotifications.renderPage(container);
-                }
-                break;
-
-            default:
-                render404(container);
-                break;
-        }
-
-        // Update bottom nav active state
-        updateBottomNav(route);
-
-        // Start notification polling for logged-in users
-        const user = window.HolaDocStorage.getCurrentUser();
-        if (user && window.HolaDocNotifications) {
-            window.HolaDocNotifications.init(user.dni, user.type);
+            }
         }
     }
 
