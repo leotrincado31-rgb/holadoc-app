@@ -4,8 +4,8 @@
   "description": "Plataforma de seguimiento médico-paciente Tu Doctor de Cabecera",
   "main": "index.html",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   },
   "dependencies": {
     "@vercel/postgres": "^0.8.0",
