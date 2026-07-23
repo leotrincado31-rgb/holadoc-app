@@ -7,6 +7,11 @@
     <meta name="theme-color" content="#034C81">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <script>
+      window.addEventListener('error', function(e) {
+        alert('Error: ' + e.message + ' en ' + e.filename + ' linea ' + e.lineno);
+      });
+    </script>
     <meta property="og:title" content="Tu Doctor de Cabecera — Tu salud, más simple">
     <meta property="og:description" content="Gestioná turnos, recetas digitales y tu historia clínica desde cualquier dispositivo.">
     <title>Tu Doctor de Cabecera — Plataforma de Salud Digital</title>
@@ -130,13 +135,13 @@
     <!-- Toast Notification Container -->
     <div class="toast-container" id="toast-container"></div>
 
-    <!-- Scripts v8 (loaded in dependency order) -->
-    <script src="js/storage.js?v=8"></script>
-    <script src="js/auth.js?v=8"></script>
-    <script src="js/notifications.js?v=8"></script>
-    <script src="js/patient.js?v=8"></script>
-    <script src="js/doctor.js?v=8"></script>
-    <script src="js/app.js?v=8"></script>
+    <!-- Scripts v9 (loaded in dependency order) -->
+    <script src="js/storage.js?v=9"></script>
+    <script src="js/auth.js?v=9"></script>
+    <script src="js/notifications.js?v=9"></script>
+    <script src="js/patient.js?v=9"></script>
+    <script src="js/doctor.js?v=9"></script>
+    <script src="js/app.js?v=9"></script>
 
     <script>
       // Remove loader after app initializes with emergency timeout
