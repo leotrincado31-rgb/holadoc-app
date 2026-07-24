@@ -18,11 +18,11 @@
     };
 
     window.HolaDocPatient = {
-        renderDashboard(container) {
+        async renderDashboard(container) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
 
-            const requests = window.HolaDocStorage.getRequests({ patientDni: user.dni }).slice(0, 5);
+            const requests = (await window.HolaDocStorage.getRequests({ patientDni: user.dni })).slice(0, 5);
 
             container.innerHTML = `
                 <div class="page-enter">
@@ -74,7 +74,7 @@
                             </div>
                         ` : `
                             <div class="card" style="padding: 0; overflow: hidden;">
-                                ${requests.map(r => {
+                                ${(await Promise.all(requests.map(async r => {
                                     let icon = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
                                     let typeName = 'Solicitud';
                                     if (r.type === 'receta') { 
@@ -94,7 +94,7 @@
                                         typeName = 'Internación Domiciliaria'; 
                                     }
 
-                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                    const doc = await window.HolaDocStorage.getDoctor(r.doctorDni);
                                     const docName = doc ? doc.name : 'Médico General';
                                     const dateStr = new Date(r.createdAt).toLocaleDateString('es-AR');
 
@@ -113,7 +113,7 @@
                                             </span>
                                         </a>
                                     `;
-                                }).join('')}
+                                }))).join('')}
                             </div>
                         `}
                     </div>
@@ -121,8 +121,8 @@
             `;
         },
 
-        renderAppointment(container) {
-            const doctors = window.HolaDocStorage.getDoctors();
+        async renderAppointment(container) {
+            const doctors = await window.HolaDocStorage.getDoctors();
             let selectedDoctor = null;
             let selectedDate = null;
             let selectedTime = null;
@@ -217,7 +217,7 @@
 
                 document.getElementById('btn-back-step1').addEventListener('click', renderStep1);
 
-                document.getElementById('btn-next-step3').addEventListener('click', () => {
+                document.getElementById('btn-next-step3').addEventListener('click', async () => {
                     const dateInput = document.getElementById('appointment-date');
                     const errorDiv = document.getElementById('date-error');
                     const dateVal = dateInput.value;
@@ -243,7 +243,7 @@
                     }
 
                     // Check if the specific date is blocked by the doctor
-                    const blockedDates = window.HolaDocStorage.getBlockedDates(selectedDoctor.dni);
+                    const blockedDates = await window.HolaDocStorage.getBlockedDates(selectedDoctor.dni);
                     if (blockedDates.includes(dateVal)) {
                         errorDiv.textContent = `${selectedDoctor.name} no atenderá en esta fecha específica (agenda cancelada/bloqueada). Por favor, seleccioná otra fecha.`;
                         errorDiv.classList.remove('hidden');
@@ -251,11 +251,11 @@
                     }
 
                     selectedDate = dateVal;
-                    renderStep3(dayKey);
+                    await renderStep3(dayKey);
                 });
             }
 
-            function renderStep3(dayKey) {
+            async function renderStep3(dayKey) {
                 const schedule = selectedDoctor.schedule[dayKey];
                 const duration = parseInt(selectedDoctor.consultationDuration) || 30;
 
@@ -271,7 +271,7 @@
                 endTime.setHours(endH, endM, 0, 0);
 
                 // Get existing appointments for that doctor and date
-                const existing = window.HolaDocStorage.getAppointments({
+                const existing = await window.HolaDocStorage.getAppointments({
                     doctorDni: selectedDoctor.dni,
                     date: selectedDate
                 });
@@ -337,9 +337,9 @@
                     </div>
                 `;
 
-                document.getElementById('btn-confirm-appointment').addEventListener('click', () => {
+                document.getElementById('btn-confirm-appointment').addEventListener('click', async () => {
                     const user = window.HolaDocStorage.getCurrentUser();
-                    window.HolaDocStorage.saveAppointment({
+                    await window.HolaDocStorage.saveAppointment({
                         patientDni: user.dni,
                         doctorDni: selectedDoctor.dni,
                         date: selectedDate,
@@ -364,11 +364,11 @@
             renderStep1();
         },
 
-        renderRequest(container, type) {
+        async renderRequest(container, type) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
 
-            const doctors = window.HolaDocStorage.getDoctors();
+            const doctors = await window.HolaDocStorage.getDoctors();
             let formHTML = '';
             let title = '';
             let subtitle = '';
@@ -498,7 +498,7 @@
             `;
 
             const form = document.getElementById('patient-request-form');
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const docDni = document.getElementById('req-doc').value;
                 const details = {};
@@ -517,7 +517,7 @@
                     details.reason = document.getElementById('req-reason').value.trim();
                 }
 
-                window.HolaDocStorage.saveRequest({
+                await window.HolaDocStorage.saveRequest({
                     patientDni: user.dni,
                     doctorDni: docDni,
                     type,
@@ -526,7 +526,7 @@
                 });
 
                 // Notify doctor
-                const doctor = window.HolaDocStorage.getDoctor(docDni);
+                const doctor = await window.HolaDocStorage.getDoctor(docDni);
                 const reqLabel = type === 'receta' ? 'receta' : type === 'derivacion' ? 'derivación' : type === 'estudio' ? 'estudios' : 'internación domiciliaria';
                 window.HolaDocNotifications.createNotification(
                     docDni,
@@ -541,11 +541,12 @@
             });
         },
 
-        renderHealth(container) {
+        async renderHealth(container) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
 
-            const healthDataList = window.HolaDocStorage.getHealthData(user.dni);
+            const healthDataList = await window.HolaDocStorage.getHealthData(user.dni);
+            const records = await window.HolaDocStorage.getRecords(user.dni);
 
             container.innerHTML = `
                 <div class="page-enter">
@@ -662,12 +663,12 @@
                     <!-- Historia Clínica Section -->
                     <div class="section mt-3">
                         <h2 class="section-title">📋 Mi Historia Clínica</h2>
-                        ${window.HolaDocStorage.getRecords(user.dni).length === 0 ? `
+                        ${records.length === 0 ? `
                             <div class="card text-center"><p class="text-muted">Aún no tenés consultas médicas registradas en tu historia clínica.</p></div>
                         ` : `
                             <div class="timeline">
-                                ${window.HolaDocStorage.getRecords(user.dni).map(r => {
-                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                ${(await Promise.all(records.map(async r => {
+                                    const doc = await window.HolaDocStorage.getDoctor(r.doctorDni);
                                     const docName = doc ? doc.name : 'Médico General';
                                     return `
                                         <div class="timeline-item">
@@ -717,7 +718,7 @@
                                             </div>
                                         </div>
                                     `;
-                                }).join('')}
+                                }))).join('')}
                             </div>
                         `}
                     </div>
@@ -725,7 +726,7 @@
             `;
 
             const form = document.getElementById('health-form');
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const sys = document.getElementById('h-sys').value;
                 const dia = document.getElementById('h-dia').value;
@@ -735,7 +736,7 @@
                 const hr = document.getElementById('h-hr').value;
                 const notes = document.getElementById('h-notes').value.trim();
 
-                window.HolaDocStorage.saveHealthData({
+                await window.HolaDocStorage.saveHealthData({
                     patientDni: user.dni,
                     date: new Date().toISOString().split('T')[0],
                     bloodPressureSys: parseInt(sys),
@@ -752,20 +753,20 @@
             });
         },
 
-        renderHistory(container) {
+        async renderHistory(container) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
 
-            const records = window.HolaDocStorage.getRecords(user.dni);
-            const requests = window.HolaDocStorage.getRequests({ patientDni: user.dni });
-            const appointments = window.HolaDocStorage.getAppointments({ patientDni: user.dni });
+            const records = await window.HolaDocStorage.getRecords(user.dni);
+            const requests = await window.HolaDocStorage.getRequests({ patientDni: user.dni });
+            const appointments = await window.HolaDocStorage.getAppointments({ patientDni: user.dni });
 
             const allItems = [
                 ...requests.map(r => ({ ...r, isAppt: false })),
                 ...appointments.map(a => ({ ...a, isAppt: true, type: 'turno', createdAt: a.createdAt || a.date + 'T00:00:00.000Z' }))
             ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-            function renderTabs(activeTab) {
+            async function renderTabs(activeTab) {
                 let tabContent = '';
 
                 if (activeTab === 'requests') {
@@ -780,7 +781,7 @@
                     } else {
                         tabContent = `
                             <div class="grid" style="gap:16px;">
-                                ${allItems.map(r => {
+                                ${(await Promise.all(allItems.map(async r => {
                                     let icon = '📋';
                                     let typeName = 'Solicitud';
                                     let detailsPreview = '';
@@ -809,7 +810,7 @@
                                         }
                                     }
 
-                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                    const doc = await window.HolaDocStorage.getDoctor(r.doctorDni);
                                     const docName = doc ? doc.name : 'Médico General';
                                     const dateStr = new Date(r.createdAt).toLocaleDateString('es-AR');
 
@@ -856,7 +857,7 @@
                                             </div>
                                         </div>
                                     `;
-                                }).join('')}
+                                }))).join('')}
                             </div>
                         `;
                     }
@@ -872,8 +873,8 @@
                     } else {
                         tabContent = `
                             <div class="timeline">
-                                ${records.map(r => {
-                                    const doc = window.HolaDocStorage.getDoctor(r.doctorDni);
+                                ${(await Promise.all(records.map(async r => {
+                                    const doc = await window.HolaDocStorage.getDoctor(r.doctorDni);
                                     const docName = doc ? doc.name : 'Médico General';
                                     return `
                                         <div class="timeline-item">
@@ -923,7 +924,7 @@
                                             </div>
                                         </div>
                                     `;
-                                }).join('')}
+                                }))).join('')}
                             </div>
                         `;
                     }
@@ -950,25 +951,25 @@
                 `;
 
                 // Add listeners to tabs
-                document.getElementById('tab-btn-requests').addEventListener('click', () => renderTabs('requests'));
-                document.getElementById('tab-btn-history').addEventListener('click', () => renderTabs('history'));
+                document.getElementById('tab-btn-requests').addEventListener('click', async () => await renderTabs('requests'));
+                document.getElementById('tab-btn-history').addEventListener('click', async () => await renderTabs('history'));
             }
 
-            renderTabs('requests');
+            await renderTabs('requests');
         },
 
 
-        renderRequestDetail(container, requestId) {
+        async renderRequestDetail(container, requestId) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
 
-            const req = window.HolaDocStorage.getRequests().find(r => r.id === requestId);
+            const req = (await window.HolaDocStorage.getRequests()).find(r => r.id === requestId);
             if (!req) {
                 container.innerHTML = `<div class="empty-state"><h3>No se encontró la solicitud</h3></div>`;
                 return;
             }
 
-            const doc = window.HolaDocStorage.getDoctor(req.doctorDni);
+            const doc = await window.HolaDocStorage.getDoctor(req.doctorDni);
             const docName = doc ? doc.name : 'Médico General';
             const spec = doc ? doc.specialty : '';
 

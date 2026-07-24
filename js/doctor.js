@@ -158,34 +158,34 @@
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function patientName(dni) {
-    const p = _storage().getPatient(dni);
+  async function patientName(dni) {
+    const p = await _storage().getPatient(dni);
     return p ? p.name : dni;
   }
 
-  function patientObj(dni) {
-    return _storage().getPatient(dni);
+  async function patientObj(dni) {
+    return await _storage().getPatient(dni);
   }
 
-  function currentDoctor() {
+  async function currentDoctor() {
     const u = _storage().getCurrentUser();
     if (!u || u.type !== 'doctor') return null;
-    return _storage().getDoctor(u.dni) || u;
+    return (await _storage().getDoctor(u.dni)) || u;
   }
 
   // ──────────────────────────────────────────────────────────────────────────
   // renderDashboard
   // ──────────────────────────────────────────────────────────────────────────
 
-  function renderDashboard(container) {
+  async function renderDashboard(container) {
     container.innerHTML = '';
-    const doc   = currentDoctor();
+    const doc   = await currentDoctor();
     if (!doc) { container.innerHTML = '<p class="text-center mt-3">No se pudo cargar el perfil del médico.</p>'; return; }
 
     const today        = todayISO();
-    const appointments = _storage().getAppointments({ doctorDni: doc.dni, date: today });
-    const allRequests  = _storage().getRequests({ doctorDni: doc.dni, status: 'pendiente' });
-    const allAppts     = _storage().getAppointments({ doctorDni: doc.dni });
+    const appointments = await _storage().getAppointments({ doctorDni: doc.dni, date: today });
+    const allRequests  = await _storage().getRequests({ doctorDni: doc.dni, status: 'pendiente' });
+    const allAppts     = await _storage().getAppointments({ doctorDni: doc.dni });
 
     // Unique active patients (any appointment or request)
     const patientDnis = new Set();
@@ -245,22 +245,23 @@
           <h2 class="section-title">Próximos turnos de hoy</h2>
           ${todaySorted.length === 0
             ? '<div class="empty-state"><div class="empty-state-icon">🗓️</div><p class="empty-state-text">No tenés turnos hoy</p></div>'
-            : `<div class="stagger-children">${todaySorted.map(a => {
+            : `<div class="stagger-children">${(await Promise.all(todaySorted.map(async a => {
                 const hasPending = patientsWithPendingReq.has(a.patientDni);
+                const pName = await patientName(a.patientDni);
                 return `
                   <div class="list-item card mb-1">
                     <div class="list-item-content flex-between">
                       <div>
                         <span style="font-weight:700;font-size:1.1rem;margin-right:.5rem">${escapeHtml(a.time || '—')}</span>
                         <a href="javascript:void(0)" class="dash-patient-link" data-dni="${a.patientDni}" style="color:var(--color-primary);cursor:pointer;font-weight:600">
-                          ${escapeHtml(patientName(a.patientDni))}
+                          ${escapeHtml(pName)}
                         </a>
                         ${hasPending ? '<span class="badge badge-pending" style="margin-left:.5rem;font-size:.7rem">Solicitud</span>' : ''}
                       </div>
                       <span class="badge ${getStatusBadgeClass(a.status)}">${getStatusLabel(a.status)}</span>
                     </div>
                   </div>`;
-              }).join('')}</div>`
+              }))).join('')}</div>`
           }
         </div>
 
@@ -272,20 +273,23 @@
           </div>
           ${recentReqs.length === 0
             ? '<p class="text-muted">Sin solicitudes pendientes 🎉</p>'
-            : `<div class="stagger-children">${recentReqs.map(r => `
+            : `<div class="stagger-children">${(await Promise.all(recentReqs.map(async r => {
+                const pName = await patientName(r.patientDni);
+                return `
                 <div class="list-item card mb-1 dash-req-link" data-dni="${r.patientDni}" style="cursor:pointer">
                   <div class="list-item-content flex-between">
                     <div>
                       <span style="margin-right:.35rem">${getRequestTypeIcon(r.type)}</span>
                       <strong>${getRequestTypeLabel(r.type)}</strong>
-                      <span class="text-muted" style="margin-left:.5rem">— ${escapeHtml(patientName(r.patientDni))}</span>
+                      <span class="text-muted" style="margin-left:.5rem">— ${escapeHtml(pName)}</span>
                     </div>
                     <div>
                       <span class="text-muted" style="font-size:.85rem;margin-right:.5rem">${timeAgo(r.createdAt)}</span>
                       <span class="badge ${getStatusBadgeClass(r.status)}">${getStatusLabel(r.status)}</span>
                     </div>
                   </div>
-                </div>`).join('')}</div>`
+                </div>`;
+              }))).join('')}</div>`
           }
         </div>
       </div>`;
@@ -307,14 +311,14 @@
   // renderSchedule
   // ──────────────────────────────────────────────────────────────────────────
 
-  function renderSchedule(container) {
+  async function renderSchedule(container) {
     container.innerHTML = '';
-    const doc = currentDoctor();
+    const doc = await currentDoctor();
     if (!doc) { container.innerHTML = '<p class="text-center mt-3">Error al cargar perfil.</p>'; return; }
 
     let activeTab = 'config';
 
-    function render() {
+    async function render() {
       const schedule = doc.schedule || {};
       const duration = doc.consultationDuration || 30;
 
@@ -338,19 +342,19 @@
 
       container.querySelector('#sched-back').addEventListener('click', () => _app().navigate('/doctor'));
       container.querySelectorAll('.tab').forEach(t => {
-        t.addEventListener('click', () => { activeTab = t.dataset.tab; render(); });
+        t.addEventListener('click', async () => { activeTab = t.dataset.tab; await render(); });
       });
 
       const content = container.querySelector('#sched-content');
-      if (activeTab === 'config') renderScheduleConfig(content, doc, schedule, duration);
-      else if (activeTab === 'week') renderScheduleWeek(content, doc);
-      else renderScheduleBlocked(content, doc);
+      if (activeTab === 'config') await renderScheduleConfig(content, doc, schedule, duration);
+      else if (activeTab === 'week') await renderScheduleWeek(content, doc);
+      else await renderScheduleBlocked(content, doc);
     }
 
-    render();
+    await render();
   }
 
-  function renderScheduleConfig(content, doc, schedule, duration) {
+  async function renderScheduleConfig(content, doc, schedule, duration) {
     const durationOptions = [15, 20, 30, 45, 60];
 
     const html = `
@@ -396,7 +400,7 @@
     });
 
     // Save
-    content.querySelector('#sched-save').addEventListener('click', () => {
+    content.querySelector('#sched-save').addEventListener('click', async () => {
       const newSchedule = {};
       DAYS.forEach(day => {
         const active = content.querySelector(`.day-check[data-day="${day.key}"]`).checked;
@@ -406,7 +410,7 @@
       });
       const newDuration = parseInt(content.querySelector('#sched-duration').value, 10);
 
-      _storage().updateDoctor(doc.dni, { schedule: newSchedule, consultationDuration: newDuration });
+      await _storage().updateDoctor(doc.dni, { schedule: newSchedule, consultationDuration: newDuration });
 
       // Refresh cached doc
       Object.assign(doc, { schedule: newSchedule, consultationDuration: newDuration });
@@ -415,7 +419,7 @@
     });
   }
 
-  function renderScheduleWeek(content, doc) {
+  async function renderScheduleWeek(content, doc) {
     // Build a week view starting from Monday of the current week
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0=Sun
@@ -429,13 +433,13 @@
       weekDates.push(d);
     }
 
-    const allAppts = _storage().getAppointments({ doctorDni: doc.dni });
+    const allAppts = await _storage().getAppointments({ doctorDni: doc.dni });
 
     const html = `
       <div class="card card-glass fade-in" style="overflow-x:auto">
         <div class="card-body">
           <div class="calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem;min-width:700px">
-            ${weekDates.map(d => {
+            ${(await Promise.all(weekDates.map(async d => {
               const iso = d.toISOString().slice(0, 10);
               const dayKey = DAYS[((d.getDay() + 6) % 7)]?.key;
               const isToday = iso === todayISO();
@@ -448,16 +452,19 @@
                   </div>
                   ${dayAppts.length === 0
                     ? '<p class="text-muted text-center" style="font-size:.75rem">Sin turnos</p>'
-                    : dayAppts.map(a => `
+                    : (await Promise.all(dayAppts.map(async a => {
+                        const pName = await patientName(a.patientDni);
+                        return `
                         <div class="time-slot week-slot" data-dni="${a.patientDni}"
                              style="background:${a.status === 'confirmado' ? 'rgba(16,185,129,.12)' : a.status === 'pendiente' ? 'rgba(245,158,11,.12)' : a.status === 'completado' ? 'rgba(107,114,128,.1)' : 'rgba(239,68,68,.1)'};
                                     border-radius:.5rem;padding:.35rem .5rem;margin-bottom:.35rem;cursor:pointer;font-size:.8rem">
                           <strong>${escapeHtml(a.time || '')}</strong><br/>
-                          <span>${escapeHtml(patientName(a.patientDni).split(' ')[0])}</span>
-                        </div>`).join('')
+                          <span>${escapeHtml(pName.split(' ')[0])}</span>
+                        </div>`;
+                      }))).join('')
                   }
                 </div>`;
-            }).join('')}
+            }))).join('')}
           </div>
         </div>
       </div>`;
@@ -469,9 +476,9 @@
     });
   }
 
-  function renderScheduleBlocked(content, doc) {
-    function draw() {
-      const blockedDates = _storage().getBlockedDates(doc.dni).sort();
+  async function renderScheduleBlocked(content, doc) {
+    async function draw() {
+      const blockedDates = (await _storage().getBlockedDates(doc.dni)).sort();
       const html = `
         <div class="card card-glass fade-in" style="text-align:left;">
           <div class="card-body">
@@ -511,41 +518,41 @@
       content.innerHTML = html;
 
       // Add block action
-      content.querySelector('#btn-block-date').addEventListener('click', () => {
+      content.querySelector('#btn-block-date').addEventListener('click', async () => {
         const dateInput = content.querySelector('#block-date-input');
         const dateVal = dateInput.value;
         if (!dateVal) { _app().showToast('Seleccioná una fecha válida', 'error'); return; }
 
-        _storage().saveBlockedDate(doc.dni, dateVal);
+        await _storage().saveBlockedDate(doc.dni, dateVal);
         _app().showToast('Fecha bloqueada con éxito', 'success');
-        draw();
+        await draw();
       });
 
       // Add unblock actions
       content.querySelectorAll('.btn-unlock-date').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const dateVal = btn.dataset.date;
-          _storage().removeBlockedDate(doc.dni, dateVal);
+          await _storage().removeBlockedDate(doc.dni, dateVal);
           _app().showToast('Fecha desbloqueada', 'info');
-          draw();
+          await draw();
         });
       });
     }
 
-    draw();
+    await draw();
   }
 
   // ──────────────────────────────────────────────────────────────────────────
   // renderPatients
   // ──────────────────────────────────────────────────────────────────────────
 
-  function renderPatients(container) {
+  async function renderPatients(container) {
     container.innerHTML = '';
-    const doc = currentDoctor();
+    const doc = await currentDoctor();
     if (!doc) return;
 
-    const allAppts    = _storage().getAppointments({ doctorDni: doc.dni });
-    const allRequests = _storage().getRequests({ doctorDni: doc.dni });
+    const allAppts    = await _storage().getAppointments({ doctorDni: doc.dni });
+    const allRequests = await _storage().getRequests({ doctorDni: doc.dni });
 
     // Unique patient DNIs
     const dniSet = new Set();
@@ -553,14 +560,15 @@
     allRequests.forEach(r => dniSet.add(r.patientDni));
     
     // Also include patients that have medical records written by this doctor
-    _storage().getPatients().forEach(p => {
-      const records = _storage().getRecords(p.dni);
+    const allPatients = await _storage().getPatients();
+    for (const p of allPatients) {
+      const records = await _storage().getRecords(p.dni);
       if (records.some(rec => rec.doctorDni === doc.dni)) {
         dniSet.add(p.dni);
       }
-    });
+    }
 
-    const patients = [...dniSet].map(dni => _storage().getPatient(dni)).filter(Boolean);
+    const patients = (await Promise.all([...dniSet].map(dni => _storage().getPatient(dni)))).filter(Boolean);
 
     // Enrich with last visit & pending count
     const enriched = patients.map(p => {
@@ -569,7 +577,7 @@
       return { ...p, lastVisit: appts[0]?.date || null, pendingRequests: pendingReqs };
     });
 
-    function renderList(filter = '') {
+    async function renderList(filter = '') {
       const q = filter.toLowerCase().trim();
       const filtered = q
         ? enriched.filter(p => p.name.toLowerCase().includes(q) || p.dni.includes(q))
@@ -616,17 +624,17 @@
       });
     }
 
-    renderList();
+    await renderList();
   }
 
   // ──────────────────────────────────────────────────────────────────────────
   // renderPatientDetail
   // ──────────────────────────────────────────────────────────────────────────
 
-  function renderPatientDetail(container, patientDni, defaultTab = 'historia') {
+  async function renderPatientDetail(container, patientDni, defaultTab = 'historia') {
     container.innerHTML = '';
-    const doc = currentDoctor();
-    const pat = _storage().getPatient(patientDni);
+    const doc = await currentDoctor();
+    const pat = await _storage().getPatient(patientDni);
     if (!doc || !pat) {
       container.innerHTML = '<p class="text-center mt-3">Paciente no encontrado.</p>';
       return;
@@ -634,7 +642,7 @@
 
     let activeTab = defaultTab;
 
-    function render() {
+    async function render() {
       const age = calcAge(pat.birthDate);
 
       const html = `
@@ -673,28 +681,28 @@
 
       container.querySelector('#pd-back').addEventListener('click', () => _app().navigate('/doctor/pacientes'));
       container.querySelectorAll('.tab').forEach(t => {
-        t.addEventListener('click', () => { activeTab = t.dataset.tab; render(); });
+        t.addEventListener('click', async () => { activeTab = t.dataset.tab; await render(); });
       });
 
       const tabContent = container.querySelector('#pd-tab-content');
       switch (activeTab) {
-        case 'historia':     renderTabHistoria(tabContent, doc, pat); break;
-        case 'indicadores':  renderTabIndicadores(tabContent, pat); break;
-        case 'solicitudes':  renderTabSolicitudes(tabContent, doc, pat); break;
-        case 'turnos':       renderTabTurnos(tabContent, doc, pat); break;
+        case 'historia':     await renderTabHistoria(tabContent, doc, pat); break;
+        case 'indicadores':  await renderTabIndicadores(tabContent, pat); break;
+        case 'solicitudes':  await renderTabSolicitudes(tabContent, doc, pat); break;
+        case 'turnos':       await renderTabTurnos(tabContent, doc, pat); break;
       }
     }
 
-    render();
+    await render();
   }
 
   // ── Tab: Historia Clínica ─────────────────────────────────────────────────
 
-  function renderTabHistoria(content, doc, pat) {
-    const records = _storage().getRecords(pat.dni).sort((a, b) => new Date(b.date) - new Date(a.date));
+  async function renderTabHistoria(content, doc, pat) {
+    const records = (await _storage().getRecords(pat.dni)).sort((a, b) => new Date(b.date) - new Date(a.date));
     let showForm = false;
 
-    function draw() {
+    async function draw() {
       const html = `
         <div class="fade-in">
           <button class="btn btn-primary mb-2" id="hc-new-entry">+ Nueva Entrada</button>
@@ -703,8 +711,9 @@
 
           ${records.length === 0
             ? '<div class="empty-state"><div class="empty-state-icon">📋</div><p class="empty-state-text">No hay registros en la historia clínica.</p></div>'
-            : `<div class="timeline stagger-children">${records.map(r => {
-                const drName = _storage().getDoctor(r.doctorDni)?.name || r.doctorDni;
+            : `<div class="timeline stagger-children">${(await Promise.all(records.map(async r => {
+                const dr = await _storage().getDoctor(r.doctorDni);
+                const drName = dr?.name || r.doctorDni;
                 return `
                   <div class="timeline-item card mb-2">
                     <div class="card-body">
@@ -720,21 +729,22 @@
                       ${r.notes ? `<p>📝 <strong>Notas:</strong> ${escapeHtml(r.notes)}</p>` : ''}
                     </div>
                   </div>`;
-              }).join('')}</div>`
+              }))).join('')}</div>`
           }
         </div>`;
 
       content.innerHTML = html;
 
-      content.querySelector('#hc-new-entry').addEventListener('click', () => { showForm = !showForm; draw(); });
+      content.querySelector('#hc-new-entry').addEventListener('click', async () => { showForm = !showForm; await draw(); });
 
       if (showForm) {
-        content.querySelector('#hc-save').addEventListener('click', () => {
+        content.querySelector('#hc-save').addEventListener('click', async () => {
           const reason = content.querySelector('#hc-reason').value.trim();
           if (!reason) { _app().showToast('El motivo de consulta es obligatorio', 'error'); return; }
 
-          _storage().saveRecord({
-            id: _storage().generateId('rec'),
+          const recId = await _storage().generateId('rec');
+          await _storage().saveRecord({
+            id: recId,
             patientDni: pat.dni,
             doctorDni: doc.dni,
             date: todayISO(),
@@ -750,17 +760,17 @@
           showForm = false;
 
           // Refresh records list
-          const updatedRecords = _storage().getRecords(pat.dni).sort((a, b) => new Date(b.date) - new Date(a.date));
+          const updatedRecords = (await _storage().getRecords(pat.dni)).sort((a, b) => new Date(b.date) - new Date(a.date));
           records.length = 0;
           records.push(...updatedRecords);
-          draw();
+          await draw();
         });
 
-        content.querySelector('#hc-cancel')?.addEventListener('click', () => { showForm = false; draw(); });
+        content.querySelector('#hc-cancel')?.addEventListener('click', async () => { showForm = false; await draw(); });
       }
     }
 
-    draw();
+    await draw();
   }
 
   function buildRecordForm(doc) {
@@ -802,8 +812,8 @@
 
   // ── Tab: Indicadores ──────────────────────────────────────────────────────
 
-  function renderTabIndicadores(content, pat) {
-    const data = _storage().getHealthData(pat.dni, 10);
+  async function renderTabIndicadores(content, pat) {
+    const data = await _storage().getHealthData(pat.dni, 10);
     const sorted = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     if (sorted.length === 0) {
@@ -864,9 +874,9 @@
 
   // ── Tab: Solicitudes ──────────────────────────────────────────────────────
 
-  function renderTabSolicitudes(content, doc, pat) {
-    function draw() {
-      const requests = _storage().getRequests({ doctorDni: doc.dni, patientDni: pat.dni })
+  async function renderTabSolicitudes(content, doc, pat) {
+    async function draw() {
+      const requests = (await _storage().getRequests({ doctorDni: doc.dni, patientDni: pat.dni }))
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       if (requests.length === 0) {
@@ -906,7 +916,7 @@
       attachRequestActionListeners(content, doc, pat, draw);
     }
 
-    draw();
+    await draw();
   }
 
   function buildRequestDetailsPreview(r) {
@@ -947,9 +957,10 @@
   function attachRequestActionListeners(scope, doc, pat, refreshFn) {
     // Complete receta
     scope.querySelectorAll('.req-complete-receta').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const reqId = btn.dataset.id;
-        const req   = _storage().getRequests({ doctorDni: doc.dni }).find(r => r.id === reqId);
+        const requests = await _storage().getRequests({ doctorDni: doc.dni });
+        const req = requests.find(r => r.id === reqId);
         if (!req) return;
         showPrescriptionModal(doc, pat, req, refreshFn);
       });
@@ -957,9 +968,9 @@
 
     // Approve
     scope.querySelectorAll('.req-approve').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const reqId = btn.dataset.id;
-        _storage().updateRequest(reqId, { status: 'completada', resolvedAt: new Date().toISOString() });
+        await _storage().updateRequest(reqId, { status: 'completada', resolvedAt: new Date().toISOString() });
         _notifications().createNotification(pat.dni, 'patient', 'solicitud', 'Solicitud aprobada', `Tu solicitud ha sido aprobada por el Dr. ${doc.name}.`, reqId);
         _app().showToast('Solicitud aprobada', 'success');
         refreshFn();
@@ -1025,14 +1036,14 @@
     overlay.querySelector('#presc-close').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-    overlay.querySelector('#presc-emit').addEventListener('click', () => {
+    overlay.querySelector('#presc-emit').addEventListener('click', async () => {
       const meds  = overlay.querySelector('#presc-meds').value.trim();
       if (!meds) { _app().showToast('Debe indicar los medicamentos recetados', 'error'); return; }
 
       const diag  = overlay.querySelector('#presc-diag').value.trim();
       const instr = overlay.querySelector('#presc-instr').value.trim();
 
-      _storage().updateRequest(req.id, {
+      await _storage().updateRequest(req.id, {
         status: 'completada',
         resolvedAt: new Date().toISOString(),
         response: {
@@ -1088,11 +1099,11 @@
     overlay.querySelector('#reject-close').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-    overlay.querySelector('#reject-confirm').addEventListener('click', () => {
+    overlay.querySelector('#reject-confirm').addEventListener('click', async () => {
       const reason = overlay.querySelector('#reject-reason').value.trim();
       if (!reason) { _app().showToast('Debe indicar el motivo del rechazo', 'error'); return; }
 
-      _storage().updateRequest(reqId, {
+      await _storage().updateRequest(reqId, {
         status: 'rechazada',
         resolvedAt: new Date().toISOString(),
         response: { rejectionReason: reason }
@@ -1138,11 +1149,11 @@
     overlay.querySelector('#cancel-appt-close').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-    overlay.querySelector('#cancel-appt-confirm').addEventListener('click', () => {
+    overlay.querySelector('#cancel-appt-confirm').addEventListener('click', async () => {
       const reason = overlay.querySelector('#cancel-appt-reason').value.trim();
       if (!reason) { _app().showToast('Debe indicar el motivo de la cancelación', 'error'); return; }
 
-      _storage().updateAppointment(apptId, {
+      await _storage().updateAppointment(apptId, {
         status: 'cancelado',
         cancelReason: reason
       });
@@ -1162,8 +1173,8 @@
 
   // ── Tab: Turnos ───────────────────────────────────────────────────────────
 
-  function renderTabTurnos(content, doc, pat) {
-    const appointments = _storage().getAppointments({ doctorDni: doc.dni, patientDni: pat.dni })
+  async function renderTabTurnos(content, doc, pat) {
+    const appointments = (await _storage().getAppointments({ doctorDni: doc.dni, patientDni: pat.dni }))
       .sort((a, b) => {
         const cmp = b.date.localeCompare(a.date);
         return cmp !== 0 ? cmp : (b.time || '').localeCompare(a.time || '');
@@ -1180,8 +1191,8 @@
 
     const today = todayISO();
 
-    function draw() {
-      const appts = _storage().getAppointments({ doctorDni: doc.dni, patientDni: pat.dni })
+    async function draw() {
+      const appts = (await _storage().getAppointments({ doctorDni: doc.dni, patientDni: pat.dni }))
         .sort((a, b) => {
           const cmp = b.date.localeCompare(a.date);
           return cmp !== 0 ? cmp : (b.time || '').localeCompare(a.time || '');
@@ -1215,11 +1226,11 @@
       content.innerHTML = html;
 
       content.querySelectorAll('.turno-confirm').forEach(btn => {
-        btn.addEventListener('click', () => {
-          _storage().updateAppointment(btn.dataset.id, { status: 'confirmado' });
+        btn.addEventListener('click', async () => {
+          await _storage().updateAppointment(btn.dataset.id, { status: 'confirmado' });
           _notifications().createNotification(pat.dni, 'patient', 'turno', 'Turno confirmado', `Tu turno del ${formatDate(appts.find(a => a.id === btn.dataset.id)?.date)} fue confirmado por el Dr. ${doc.name}.`, btn.dataset.id);
           _app().showToast('Turno confirmado', 'success');
-          draw();
+          await draw();
         });
       });
 
@@ -1232,22 +1243,22 @@
       });
     }
 
-    draw();
+    await draw();
   }
 
   // ──────────────────────────────────────────────────────────────────────────
   // renderRequests
   // ──────────────────────────────────────────────────────────────────────────
 
-  function renderRequests(container) {
+  async function renderRequests(container) {
     container.innerHTML = '';
-    const doc = currentDoctor();
+    const doc = await currentDoctor();
     if (!doc) return;
 
     let filterType = 'todas';
 
-    function draw() {
-      const allRequests = _storage().getRequests({ doctorDni: doc.dni });
+    async function draw() {
+      const allRequests = await _storage().getRequests({ doctorDni: doc.dni });
       const pending   = allRequests.filter(r => r.status === 'pendiente' || r.status === 'en_proceso');
       const resolved  = allRequests.filter(r => r.status === 'completada' || r.status === 'rechazada');
 
@@ -1286,8 +1297,8 @@
                  <div class="empty-state-icon">🎉</div>
                  <p class="empty-state-text">No hay solicitudes pendientes${filterType !== 'todas' ? ` de tipo ${getRequestTypeLabel(filterType)}` : ''}.</p>
                </div>`
-            : `<div class="stagger-children">${sorted.map(r => {
-                const p = patientObj(r.patientDni);
+            : `<div class="stagger-children">${(await Promise.all(sorted.map(async r => {
+                const p = await patientObj(r.patientDni);
                 return `
                   <div class="card mb-2">
                     <div class="card-body">
@@ -1313,7 +1324,7 @@
                       ${buildRequestActions(r)}
                     </div>
                   </div>`;
-              }).join('')}</div>`
+              }))).join('')}</div>`
           }
 
           <!-- Resolved requests -->
@@ -1321,8 +1332,8 @@
             <div class="section mt-3">
               <h2 class="section-title">Solicitudes resueltas (últimas 10)</h2>
               <div class="stagger-children">
-                ${resolvedSorted.map(r => {
-                  const p = patientObj(r.patientDni);
+                ${(await Promise.all(resolvedSorted.map(async r => {
+                  const p = await patientObj(r.patientDni);
                   return `
                     <div class="card mb-1" style="opacity:.75">
                       <div class="card-body">
@@ -1337,7 +1348,7 @@
                         ${buildResponsePreview(r)}
                       </div>
                     </div>`;
-                }).join('')}
+                }))).join('')}
               </div>
             </div>` : ''
           }
@@ -1347,43 +1358,43 @@
 
       // Tab filters
       container.querySelectorAll('.tab[data-filter]').forEach(t => {
-        t.addEventListener('click', () => { filterType = t.dataset.filter; draw(); });
+        t.addEventListener('click', async () => { filterType = t.dataset.filter; await draw(); });
       });
 
       // Request actions — we need the patient for each request
       container.querySelectorAll('.req-complete-receta').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const req = allRequests.find(r => r.id === btn.dataset.id);
           if (!req) return;
-          const p = patientObj(req.patientDni);
+          const p = await patientObj(req.patientDni);
           if (!p) { _app().showToast('Paciente no encontrado', 'error'); return; }
           showPrescriptionModal(doc, p, req, draw);
         });
       });
 
       container.querySelectorAll('.req-approve').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const req = allRequests.find(r => r.id === btn.dataset.id);
           if (!req) return;
-          _storage().updateRequest(req.id, { status: 'completada', resolvedAt: new Date().toISOString() });
+          await _storage().updateRequest(req.id, { status: 'completada', resolvedAt: new Date().toISOString() });
           _notifications().createNotification(req.patientDni, 'patient', 'solicitud', 'Solicitud aprobada', `Tu solicitud ha sido aprobada por el Dr. ${doc.name}.`, req.id);
           _app().showToast('Solicitud aprobada', 'success');
-          draw();
+          await draw();
         });
       });
 
       container.querySelectorAll('.req-reject').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const req = allRequests.find(r => r.id === btn.dataset.id);
           if (!req) return;
-          const p = patientObj(req.patientDni);
+          const p = await patientObj(req.patientDni);
           if (!p) { _app().showToast('Paciente no encontrado', 'error'); return; }
           showRejectModal(doc, p, req.id, draw);
         });
       });
     }
 
-    draw();
+    await draw();
   }
 
   // ──────────────────────────────────────────────────────────────────────────
