@@ -9,13 +9,13 @@
     let lastNotificationCount = 0;
 
     window.HolaDocNotifications = {
-        init(userDni, userType) {
+        async init(userDni, userType) {
             if (pollInterval) return;
-            lastNotificationCount = window.HolaDocStorage.getUnreadCount(userDni, userType);
+            lastNotificationCount = await window.HolaDocStorage.getUnreadCount(userDni, userType);
 
             // Polling simulation every 4 seconds
-            pollInterval = setInterval(() => {
-                this.checkForNew(userDni, userType);
+            pollInterval = setInterval(async () => {
+                await this.checkForNew(userDni, userType);
             }, 4000);
         },
 
@@ -26,10 +26,10 @@
             }
         },
 
-        checkForNew(userDni, userType) {
-            const currentCount = window.HolaDocStorage.getUnreadCount(userDni, userType);
+        async checkForNew(userDni, userType) {
+            const currentCount = await window.HolaDocStorage.getUnreadCount(userDni, userType);
             if (currentCount > lastNotificationCount) {
-                const notifications = window.HolaDocStorage.getNotifications(userDni, userType);
+                const notifications = await window.HolaDocStorage.getNotifications(userDni, userType);
                 const newest = notifications.find(n => !n.read);
                 if (newest) {
                     this.showToast(newest.title, newest.message, newest.type || 'info');
@@ -44,21 +44,21 @@
             lastNotificationCount = currentCount;
         },
 
-        renderBell(container) {
+        async renderBell(container) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
-            const count = window.HolaDocStorage.getUnreadCount(user.dni, user.type);
+            const count = await window.HolaDocStorage.getUnreadCount(user.dni, user.type);
             container.innerHTML = `
                 🔔${count > 0 ? `<span class="notification-badge">${count > 9 ? '9+' : count}</span>` : ''}
             `;
         },
 
-        renderPage(container) {
+        async renderPage(container) {
             const user = window.HolaDocStorage.getCurrentUser();
             if (!user) return;
 
-            const notifications = window.HolaDocStorage.getNotifications(user.dni, user.type);
-            window.HolaDocStorage.markAllAsRead(user.dni, user.type);
+            const notifications = await window.HolaDocStorage.getNotifications(user.dni, user.type);
+            await window.HolaDocStorage.markAllAsRead(user.dni, user.type);
             lastNotificationCount = 0;
 
             let notifListHTML = '';
@@ -106,8 +106,8 @@
             `;
         },
 
-        createNotification(userDni, userType, type, title, message, relatedId = '') {
-            window.HolaDocStorage.saveNotification({
+        async createNotification(userDni, userType, type, title, message, relatedId = '') {
+            await window.HolaDocStorage.saveNotification({
                 userDni, userType, type, title, message, relatedId
             });
         },
