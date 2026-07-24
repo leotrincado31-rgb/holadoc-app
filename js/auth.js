@@ -115,7 +115,7 @@
             ));
 
             const form = document.getElementById('login-form');
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const dni = document.getElementById('login-dni').value.trim();
                 const errorDiv = document.getElementById('login-error');
@@ -127,7 +127,7 @@
                     return;
                 }
 
-                const user = this.login(dni);
+                const user = await this.login(dni);
                 if (user) {
                     window.HolaDocApp.showToast(`¡Hola de nuevo, ${user.name}!`, 'success');
                     window.HolaDocApp.navigate(user.type === 'patient' ? '/patient' : '/doctor');
@@ -211,7 +211,7 @@
             ));
 
             const form = document.getElementById('patient-register-form');
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const dni = document.getElementById('reg-dni').value.trim();
                 const name = document.getElementById('reg-name').value.trim();
@@ -228,9 +228,9 @@
                     return;
                 }
 
-                const success = window.HolaDocStorage.savePatient({ dni, name, phone, birthDate, obraSocial, nroAfiliado });
+                const success = await window.HolaDocStorage.savePatient({ dni, name, phone, birthDate, obraSocial, nroAfiliado });
                 if (success) {
-                    this.login(dni);
+                    await this.login(dni);
                     window.HolaDocApp.showToast('¡Registro de paciente exitoso!', 'success');
                     window.HolaDocApp.navigate('/patient');
                 } else {
@@ -263,7 +263,7 @@
             ));
 
             const form = document.getElementById('doctor-register-form');
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const dni = document.getElementById('reg-dni').value.trim();
                 const name = document.getElementById('reg-name').value.trim();
@@ -279,19 +279,20 @@
                     return;
                 }
 
+                // Default schedule
                 const schedule = {
-                    lunes:     { active: true,  start: '08:00', end: '16:00' },
-                    martes:    { active: true,  start: '08:00', end: '16:00' },
-                    miercoles: { active: true,  start: '08:00', end: '16:00' },
-                    jueves:    { active: true,  start: '08:00', end: '16:00' },
-                    viernes:   { active: true,  start: '08:00', end: '16:00' },
-                    sabado:    { active: false, start: '09:00', end: '12:00' },
-                    domingo:   { active: false, start: '09:00', end: '12:00' }
+                    lunes:     { active: true,  start: '09:00', end: '13:00' },
+                    martes:    { active: true,  start: '09:00', end: '13:00' },
+                    miercoles: { active: true,  start: '09:00', end: '13:00' },
+                    jueves:    { active: true,  start: '09:00', end: '13:00' },
+                    viernes:   { active: true,  start: '09:00', end: '13:00' },
+                    sabado:    { active: false, start: '09:00', end: '13:00' },
+                    domingo:   { active: false, start: '09:00', end: '13:00' }
                 };
 
-                const success = window.HolaDocStorage.saveDoctor({ dni, name, matricula, specialty, phone, schedule, consultationDuration: '30' });
+                const success = await window.HolaDocStorage.saveDoctor({ dni, name, matricula, specialty, phone, schedule, consultationDuration: '30' });
                 if (success) {
-                    this.login(dni);
+                    await this.login(dni);
                     window.HolaDocApp.showToast('¡Registro profesional exitoso!', 'success');
                     window.HolaDocApp.navigate('/doctor');
                 } else {
@@ -301,9 +302,9 @@
             });
         },
 
-        login(dni) {
-            let user = window.HolaDocStorage.getPatient(dni);
-            if (!user) user = window.HolaDocStorage.getDoctor(dni);
+        async login(dni) {
+            let user = await window.HolaDocStorage.getPatient(dni);
+            if (!user) user = await window.HolaDocStorage.getDoctor(dni);
             if (user) {
                 window.HolaDocStorage.setCurrentUser(user);
                 return user;
