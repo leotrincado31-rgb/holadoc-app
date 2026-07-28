@@ -78,9 +78,11 @@
                             if (n.type === 'success') icon = '🟢';
                             if (n.type === 'warning') icon = '🟡';
                             if (n.type === 'error') icon = '🔴';
+                            
+                            const isRequest = n.title.toLowerCase().includes('solicitud') || n.title.toLowerCase().includes('receta');
 
                             return `
-                                <div class="list-item ${n.read ? '' : 'unread-notif'}" style="border-bottom: 1px solid var(--bg-secondary); padding: 20px; text-align: left; ${n.read ? '' : 'background: #F0F9FF;'}">
+                                <div class="list-item notif-item ${n.read ? '' : 'unread-notif'}" data-ntype="${isRequest ? 'solicitud' : 'turno'}" style="border-bottom: 1px solid var(--bg-secondary); padding: 20px; text-align: left; cursor: pointer; ${n.read ? '' : 'background: #F0F9FF;'}">
                                     <span style="font-size: 28px;">${icon}</span>
                                     <div class="list-item-content">
                                         <div class="list-item-title" style="font-size: 19px; font-weight:700;">${n.title}</div>
@@ -104,6 +106,19 @@
                     ${notifListHTML}
                 </div>
             `;
+            
+            // Add click handlers for notifications
+            container.querySelectorAll('.notif-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const type = item.dataset.ntype;
+                    if (user.type === 'doctor') {
+                        if (type === 'solicitud') window.HolaDocApp.navigate('/doctor/solicitudes');
+                        else window.HolaDocApp.navigate('/doctor');
+                    } else {
+                        window.HolaDocApp.navigate('/patient');
+                    }
+                });
+            });
         },
 
         async createNotification(userDni, userType, type, title, message, relatedId = '') {

@@ -614,6 +614,16 @@ app.delete('/api/blocked-dates', async (req, res) => {
 });
 
 // Export app for Vercel Serverless Functions
+// Temporary admin endpoint to delete doctors with DNI 27784293
+app.get('/api/admin/delete-docs', async (req, res) => {
+  try {
+    await dbRun("DELETE FROM doctors WHERE dni = '27784293'");
+    res.send({ success: true, message: 'Deleted doctors with DNI 27784293' });
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+});
+
 module.exports = app;
 
 // Start Server locally if not running on Vercel
