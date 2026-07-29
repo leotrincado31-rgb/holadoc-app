@@ -34,12 +34,30 @@ async function dbRun(queryStr, params = []) {
   }
 }
 
+function camelizeRow(row) {
+  if (!row) return row;
+  const map = {
+    patientdni: 'patientDni', doctordni: 'doctorDni', birthdate: 'birthDate',
+    obrasocial: 'obraSocial', nroafiliado: 'nroAfiliado', consultationduration: 'consultationDuration',
+    createdat: 'createdAt', resolvedat: 'resolvedAt', lastvisit: 'lastVisit',
+    bloodpressuresys: 'bloodPressureSys', bloodpressuredia: 'bloodPressureDia',
+    heartrate: 'heartRate', respiratoryrate: 'respiratoryRate', oxygensat: 'oxygenSat',
+    bodytemp: 'bodyTemp', apptid: 'apptId', usertype: 'userType', relatedid: 'relatedId'
+  };
+  const camelized = {};
+  for (const key in row) {
+    if (map[key]) camelized[map[key]] = row[key];
+    else camelized[key] = row[key];
+  }
+  return camelized;
+}
+
 async function dbAll(queryStr, params = []) {
   const { text, values } = buildQuery(queryStr, params);
   const client = await db.connect();
   try {
     const result = await client.query(text, values);
-    return result.rows;
+    return result.rows.map(camelizeRow);
   } finally {
     client.release();
   }
@@ -50,7 +68,7 @@ async function dbGet(queryStr, params = []) {
   const client = await db.connect();
   try {
     const result = await client.query(text, values);
-    return result.rows[0];
+    return camelizeRow(result.rows[0]);
   } finally {
     client.release();
   }
