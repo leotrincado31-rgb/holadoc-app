@@ -149,9 +149,27 @@
             }
         },
 
+        async deletePatient(dni) {
+            try {
+                await apiRequest('/admin/patients/' + encodeURIComponent(dni), 'DELETE');
+                return true;
+            } catch (e) {
+                return false;
+            }
+        },
+
         async getDoctors() {
             const res = await apiRequest('/doctors');
             return Array.isArray(res) ? res : [];
+        },
+
+        async deleteDoctor(dni) {
+            try {
+                await apiRequest('/admin/doctors/' + encodeURIComponent(dni), 'DELETE');
+                return true;
+            } catch (e) {
+                return false;
+            }
         },
 
         async getDoctor(dni) {

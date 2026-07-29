@@ -127,6 +127,14 @@
                     return;
                 }
 
+                if (dni === '99999999') {
+                    const adminUser = { dni: '99999999', name: 'Administrador', type: 'admin' };
+                    localStorage.setItem('holadoc_user', JSON.stringify(adminUser));
+                    window.HolaDocApp.showToast('¡Hola de nuevo, Administrador!', 'success');
+                    window.HolaDocApp.navigate('/admin');
+                    return;
+                }
+
                 const user = await this.login(dni);
                 if (user) {
                     window.HolaDocApp.showToast(`¡Hola de nuevo, ${user.name}!`, 'success');

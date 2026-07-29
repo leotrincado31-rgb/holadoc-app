@@ -613,6 +613,37 @@ app.delete('/api/blocked-dates', async (req, res) => {
   }
 });
 
+// Admin endpoint: Delete doctor
+app.delete('/api/admin/doctors/:dni', async (req, res) => {
+  try {
+    const dni = req.params.dni;
+    await dbRun('DELETE FROM doctors WHERE dni = ?', [dni]);
+    // Optional cleanup
+    await dbRun('DELETE FROM appointments WHERE doctorDni = ?', [dni]);
+    await dbRun('DELETE FROM requests WHERE doctorDni = ?', [dni]);
+    await dbRun('DELETE FROM records WHERE doctorDni = ?', [dni]);
+    await dbRun('DELETE FROM blocked_dates WHERE doctorDni = ?', [dni]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin endpoint: Delete patient
+app.delete('/api/admin/patients/:dni', async (req, res) => {
+  try {
+    const dni = req.params.dni;
+    await dbRun('DELETE FROM patients WHERE dni = ?', [dni]);
+    // Optional cleanup
+    await dbRun('DELETE FROM appointments WHERE patientDni = ?', [dni]);
+    await dbRun('DELETE FROM requests WHERE patientDni = ?', [dni]);
+    await dbRun('DELETE FROM records WHERE patientDni = ?', [dni]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Export app for Vercel Serverless Functions
 module.exports = app;
 

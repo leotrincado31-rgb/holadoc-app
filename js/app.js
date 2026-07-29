@@ -99,7 +99,7 @@
         const user = window.HolaDocStorage.getCurrentUser();
 
         // Public routes (no layout)
-        const publicRoutes = ['/', '/login', '/register', '/register/patient', '/register/doctor'];
+        const publicRoutes = ['/', '/login', '/register', '/register/patient', '/register/doctor', '/admin'];
         if (publicRoutes.includes(route)) {
             app.innerHTML = `<div id="page-content" class="public-page"></div>`;
             return document.getElementById('page-content');
@@ -236,6 +236,14 @@
                     break;
                 case 'register':
                     window.HolaDocAuth.renderRegister(container);
+                    break;
+                case 'admin':
+                    if (!user || user.type !== 'admin') {
+                        navigate('/login');
+                        return;
+                    }
+                    window.HolaDocAdmin.renderDashboard(container);
+                    break;
                     break;
                 case 'registerPatient':
                     window.HolaDocAuth.renderPatientRegister(container);
