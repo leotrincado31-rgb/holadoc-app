@@ -33,7 +33,7 @@
         }
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout to allow Vercel cold starts
         options.signal = controller.signal;
 
         try {
