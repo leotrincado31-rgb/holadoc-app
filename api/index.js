@@ -42,7 +42,9 @@ function camelizeRow(row) {
     createdat: 'createdAt', resolvedat: 'resolvedAt', lastvisit: 'lastVisit',
     bloodpressuresys: 'bloodPressureSys', bloodpressuredia: 'bloodPressureDia',
     heartrate: 'heartRate', respiratoryrate: 'respiratoryRate', oxygensat: 'oxygenSat',
-    bodytemp: 'bodyTemp', apptid: 'apptId', usertype: 'userType', relatedid: 'relatedId'
+    bodytemp: 'bodyTemp', apptid: 'apptId', usertype: 'userType', relatedid: 'relatedId',
+    pathologicalhistory: 'pathologicalHistory', surgicalhistory: 'surgicalHistory',
+    currentmedication: 'currentMedication', nextobjectives: 'nextObjectives', userdni: 'userDni'
   };
   const camelized = {};
   for (const key in row) {
