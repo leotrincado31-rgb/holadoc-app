@@ -129,7 +129,7 @@
 
                 if (dni === '99999999') {
                     const adminUser = { dni: '99999999', name: 'Administrador', type: 'admin' };
-                    localStorage.setItem('holadoc_user', JSON.stringify(adminUser));
+                    window.HolaDocStorage.setCurrentUser(adminUser);
                     window.HolaDocApp.showToast('¡Hola de nuevo, Administrador!', 'success');
                     window.HolaDocApp.navigate('/admin');
                     return;

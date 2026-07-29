@@ -97,7 +97,7 @@
 
                 // Event Listeners
                 container.querySelector('#btn-admin-logout').addEventListener('click', () => {
-                    localStorage.removeItem('holadoc_user');
+                    window.HolaDocAuth.logout();
                     _app().navigate('/login');
                 });
 
