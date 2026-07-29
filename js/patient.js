@@ -853,7 +853,8 @@
 
                                             <div class="flex-between mt-2" style="font-size:14px; border-top:1px solid var(--bg-secondary); padding-top:8px;">
                                                 <span class="text-muted">Fecha: ${dateStr}</span>
-                                                ${r.isAppt ? '' : `<a href="#/patient/solicitud/${r.id}" class="btn btn-outline" style="height:36px; padding:0 12px; font-size:14px; border-radius:8px;">Ver receta / detalle</a>`}
+                                                ${r.isAppt && r.status === 'pendiente' ? `<button class="btn btn-outline patient-cancel-appt" data-id="${r.id}" style="height:36px; padding:0 12px; font-size:14px; border-radius:8px; border-color:var(--danger); color:var(--danger);">Cancelar Turno</button>` : ''}
+                                                ${!r.isAppt ? `<a href="#/patient/solicitud/${r.id}" class="btn btn-outline" style="height:36px; padding:0 12px; font-size:14px; border-radius:8px;">Ver receta / detalle</a>` : ''}
                                             </div>
                                         </div>
                                     `;
@@ -953,6 +954,66 @@
                 // Add listeners to tabs
                 document.getElementById('tab-btn-requests').addEventListener('click', async () => await renderTabs('requests'));
                 document.getElementById('tab-btn-history').addEventListener('click', async () => await renderTabs('history'));
+
+                // Event delegation for cancel buttons
+                container.querySelectorAll('.patient-cancel-appt').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.dataset.id;
+                        const appt = appointments.find(a => a.id === id);
+                        if (!appt) return;
+                        const dateStr = new Date(appt.date + 'T00:00:00').toLocaleDateString('es-AR', {day: '2-digit', month: 'long', year: 'numeric'});
+                        showCancelAppointmentModal(appt, dateStr, () => renderTabs(activeTab));
+                    });
+                });
+            }
+
+            function showCancelAppointmentModal(appt, dateStr, refreshFn) {
+                const overlay = document.createElement('div');
+                overlay.className = 'modal-overlay';
+                overlay.innerHTML = `
+                    <div class="modal slide-up" style="max-width:450px">
+                        <div class="modal-header">
+                            <h3 style="font-weight:900; font-size:20px; color:var(--primary); margin:0;">⚠️ Cancelar Turno</h3>
+                            <button class="modal-close" id="cancel-appt-close">✖</button>
+                        </div>
+                        <div class="card-body" style="padding-top:16px;">
+                            <p style="font-size:16px; margin-bottom:16px; color:var(--text-secondary);">
+                                ¿Estás seguro de que deseas cancelar tu turno programado para el día <strong>${dateStr}</strong>?
+                            </p>
+                            <div class="form-group">
+                                <label class="form-label">Motivo de la cancelación *</label>
+                                <textarea class="form-textarea" id="cancel-appt-reason" rows="3" placeholder="Ej: No podré asistir por motivos personales..." required></textarea>
+                            </div>
+                            <button class="btn btn-danger btn-lg btn-block" id="cancel-appt-confirm">CANCELAR TURNO</button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(overlay);
+
+                overlay.querySelector('#cancel-appt-close').addEventListener('click', () => overlay.remove());
+                overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+                overlay.querySelector('#cancel-appt-confirm').addEventListener('click', async () => {
+                    const reason = overlay.querySelector('#cancel-appt-reason').value.trim();
+                    if (!reason) { window.HolaDocApp.showToast('Debe indicar el motivo de la cancelación', 'error'); return; }
+
+                    await window.HolaDocStorage.updateAppointment(appt.id, {
+                        status: 'cancelado',
+                        cancelReason: reason
+                    });
+
+                    // Notify doctor
+                    const user = window.HolaDocStorage.getCurrentUser();
+                    await window.HolaDocApp._notifications().createNotification(
+                        appt.doctorDni, 'doctor', 'turno',
+                        'Turno cancelado por paciente',
+                        `El paciente ${user.name} canceló su turno del ${dateStr}. Motivo: ${reason}`,
+                        appt.id
+                    );
+
+                    window.HolaDocApp.showToast('Turno cancelado correctamente', 'warning');
+                    overlay.remove();
+                    refreshFn();
+                });
             }
 
             await renderTabs('requests');
@@ -1020,9 +1081,9 @@
                         ${req.response.diagnostico ? `<p style="font-size:16px; margin:4px 0;"><b>Diagnóstico:</b> ${req.response.diagnostico}</p>` : ''}
                         ${req.response.indicaciones ? `<p style="font-size:16px; margin:4px 0;"><b>Indicaciones:</b> ${req.response.indicaciones}</p>` : ''}
                         
-                        ${(user.obraSocial || '').toUpperCase().includes('PAMI') ? `
+                        ${req.status === 'completada' && req.type === 'receta' ? `
                             <div style="margin: 16px 0; padding: 16px; border: 2px dashed #059669; background-color: #ECFDF5; border-radius: 8px; color: #065F46; font-weight: 700; font-size: 16px; text-align: center; line-height: 1.4;">
-                                Su receta se realizó con éxito, acerquese a su farmacia de confianza ( para pacientes PAMI de red pami habilitadas )
+                                Su receta fue realizada con éxito. Diríjase a la farmacia que trabaje con su obra social${(user.obraSocial || '').toUpperCase().includes('PAMI') ? ' (o en caso de PAMI, a la Red PAMI)' : ''}.
                             </div>
                         ` : ''}
 

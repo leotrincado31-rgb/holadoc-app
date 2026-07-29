@@ -979,7 +979,7 @@
 
   function buildRequestActions(r) {
     if (r.type === 'receta') {
-      return `<div class="mt-1"><button class="btn btn-primary req-complete-receta" data-id="${r.id}">📝 Completar Receta</button></div>`;
+      return `<div class="mt-1"><button class="btn btn-primary req-complete-receta" data-id="${r.id}">✅ Realizar Receta</button></div>`;
     }
     return `
       <div class="mt-1" style="display:flex;gap:.5rem;flex-wrap:wrap">
@@ -1061,7 +1061,7 @@
             ✒️ Dr. ${escapeHtml(doc.name)} — Mat. ${escapeHtml(doc.matricula || '—')}
           </div>
 
-          <button class="btn btn-success btn-lg btn-block" id="presc-emit">📋 CONFIRMAR RECETA</button>
+          <button class="btn btn-success btn-lg btn-block" id="presc-emit">✅ REALIZADA</button>
         </div>
       </div>`;
 
