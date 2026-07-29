@@ -211,7 +211,7 @@
 
         <!-- Stats -->
         <div class="grid grid-3 mb-3 stagger-children">
-          <div class="card card-3d" style="border-left:4px solid var(--primary); display:flex; align-items:center; gap:16px; padding:20px;">
+          <div class="card card-3d" onclick="window.HolaDocApp.navigate('/doctor/agenda')" style="cursor:pointer; border-left:4px solid var(--primary); display:flex; align-items:center; gap:16px; padding:20px;">
             <div style="width:52px;height:52px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0;">
               <img src="img/icon_turno.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Turnos">
             </div>
@@ -220,7 +220,7 @@
               <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Turnos hoy</div>
             </div>
           </div>
-          <div class="card card-3d" style="border-left:4px solid var(--warning); display:flex; align-items:center; gap:16px; padding:20px;">
+          <div class="card card-3d" onclick="window.HolaDocApp.navigate('/doctor/notificaciones')" style="cursor:pointer; border-left:4px solid var(--warning); display:flex; align-items:center; gap:16px; padding:20px;">
             <div style="width:52px;height:52px;background:#FFFBEB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--warning);flex-shrink:0;">
               <img src="img/icon_receta.png" style="width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply;" alt="Solicitudes">
             </div>
@@ -229,7 +229,7 @@
               <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Pendientes</div>
             </div>
           </div>
-          <div class="card card-3d" style="border-left:4px solid var(--success); display:flex; align-items:center; gap:16px; padding:20px;">
+          <div class="card card-3d" onclick="window.HolaDocApp.navigate('/doctor/pacientes')" style="cursor:pointer; border-left:4px solid var(--success); display:flex; align-items:center; gap:16px; padding:20px;">
             <div style="width:52px;height:52px;background:#DCFCE7;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--success);flex-shrink:0;">
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             </div>
@@ -304,7 +304,41 @@
       link.addEventListener('click', () => _app().navigate(`/doctor/paciente/${link.dataset.dni}/solicitudes`));
     });
     const verTodas = container.querySelector('#dash-ver-todas');
-    if (verTodas) verTodas.addEventListener('click', () => _app().navigate('/doctor/solicitudes'));
+    if (verTodas) verTodas.addEventListener('click', () => _app().navigate('/doctor/notificaciones'));
+
+    // Request actions (for recent requests on dashboard)
+    const refreshDash = () => renderDashboard(container);
+    container.querySelectorAll('.req-complete-receta').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const req = allRequests.find(r => r.id === btn.dataset.id);
+        if (!req) return;
+        const p = await patientObj(req.patientDni);
+        if (!p) { _app().showToast('Paciente no encontrado', 'error'); return; }
+        showPrescriptionModal(doc, p, req, refreshDash);
+      });
+    });
+    container.querySelectorAll('.req-approve').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const req = allRequests.find(r => r.id === btn.dataset.id);
+        if (!req) return;
+        await _storage().updateRequest(req.id, { status: 'completada', resolvedAt: new Date().toISOString() });
+        window.HolaDocNotifications.createNotification(req.patientDni, 'patient', 'solicitud', 'Solicitud aprobada', `Tu solicitud ha sido aprobada por el Dr. ${doc.name}.`, req.id);
+        _app().showToast('Solicitud aprobada', 'success');
+        refreshDash();
+      });
+    });
+    container.querySelectorAll('.req-reject').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const req = allRequests.find(r => r.id === btn.dataset.id);
+        if (!req) return;
+        const p = await patientObj(req.patientDni);
+        if (!p) { _app().showToast('Paciente no encontrado', 'error'); return; }
+        showRejectModal(doc, p, req.id, refreshDash);
+      });
+    });
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -577,52 +611,52 @@
       return { ...p, lastVisit: appts[0]?.date || null, pendingRequests: pendingReqs };
     });
 
+    container.innerHTML = `
+      <div class="page-enter">
+        <h1 class="page-title mb-2">👥 Mis Pacientes</h1>
+        <div class="form-group mb-2">
+          <input type="text" class="form-input" id="pat-search" placeholder="Buscar por nombre o DNI..." />
+        </div>
+        <div id="pat-list-content"></div>
+      </div>
+    `;
+
+    const searchInput = container.querySelector('#pat-search');
+    const listContent = container.querySelector('#pat-list-content');
+
     async function renderList(filter = '') {
       const q = filter.toLowerCase().trim();
       const filtered = q
         ? enriched.filter(p => p.name.toLowerCase().includes(q) || p.dni.includes(q))
         : enriched;
 
-      const html = `
-        <div class="page-enter">
-          <h1 class="page-title mb-2">👥 Mis Pacientes</h1>
+      const html = filtered.length === 0
+        ? `<div class="empty-state fade-in">
+             <div class="empty-state-icon">🔍</div>
+             <p class="empty-state-title">Sin resultados</p>
+             <p class="empty-state-text">${enriched.length === 0 ? 'Aún no tenés pacientes registrados.' : 'No se encontraron pacientes con ese criterio.'}</p>
+           </div>`
+        : `<div class="stagger-children">${filtered.map(p => `
+            <div class="list-item card mb-1 pat-card" data-dni="${p.dni}" style="cursor:pointer">
+              <div class="list-item-content" style="display:flex;align-items:center;gap:1rem">
+                <div class="avatar">${getInitials(p.name)}</div>
+                <div style="flex:1">
+                  <div class="list-item-title">${escapeHtml(p.name)}</div>
+                  <div class="list-item-subtitle text-muted">DNI: ${escapeHtml(p.dni)} · ${escapeHtml(p.obraSocial || 'Sin obra social')}</div>
+                  ${p.lastVisit ? `<div class="text-muted" style="font-size:.8rem">Última visita: ${formatDate(p.lastVisit)}</div>` : ''}
+                </div>
+                ${p.pendingRequests > 0 ? `<span class="badge badge-pending">${p.pendingRequests} solicitud${p.pendingRequests > 1 ? 'es' : ''}</span>` : ''}
+              </div>
+            </div>`).join('')}</div>`;
 
-          <div class="form-group mb-2">
-            <input type="text" class="form-input" id="pat-search" placeholder="Buscar por nombre o DNI..." value="${escapeHtml(filter)}" />
-          </div>
+      listContent.innerHTML = html;
 
-          ${filtered.length === 0
-            ? `<div class="empty-state fade-in">
-                 <div class="empty-state-icon">🔍</div>
-                 <p class="empty-state-title">Sin resultados</p>
-                 <p class="empty-state-text">${enriched.length === 0 ? 'Aún no tenés pacientes registrados.' : 'No se encontraron pacientes con ese criterio.'}</p>
-               </div>`
-            : `<div class="stagger-children">${filtered.map(p => `
-                <div class="list-item card mb-1 pat-card" data-dni="${p.dni}" style="cursor:pointer">
-                  <div class="list-item-content" style="display:flex;align-items:center;gap:1rem">
-                    <div class="avatar">${getInitials(p.name)}</div>
-                    <div style="flex:1">
-                      <div class="list-item-title">${escapeHtml(p.name)}</div>
-                      <div class="list-item-subtitle text-muted">DNI: ${escapeHtml(p.dni)} · ${escapeHtml(p.obraSocial || 'Sin obra social')}</div>
-                      ${p.lastVisit ? `<div class="text-muted" style="font-size:.8rem">Última visita: ${formatDate(p.lastVisit)}</div>` : ''}
-                    </div>
-                    ${p.pendingRequests > 0 ? `<span class="badge badge-pending">${p.pendingRequests} solicitud${p.pendingRequests > 1 ? 'es' : ''}</span>` : ''}
-                  </div>
-                </div>`).join('')}</div>`
-          }
-        </div>`;
-
-      container.innerHTML = html;
-
-      const search = container.querySelector('#pat-search');
-      if (search) {
-        search.focus();
-        search.addEventListener('input', () => renderList(search.value));
-      }
-      container.querySelectorAll('.pat-card').forEach(card => {
+      listContent.querySelectorAll('.pat-card').forEach(card => {
         card.addEventListener('click', () => _app().navigate(`/doctor/paciente/${card.dataset.dni}`));
       });
     }
+
+    searchInput.addEventListener('input', () => renderList(searchInput.value));
 
     await renderList();
   }
