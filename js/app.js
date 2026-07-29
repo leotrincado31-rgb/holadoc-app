@@ -238,14 +238,15 @@
                 case 'register':
                     window.HolaDocAuth.renderRegister(container);
                     break;
-                case 'admin':
-                    if (!user || user.type !== 'admin') {
+                case 'admin': {
+                    const adminUser = window.HolaDocStorage.getCurrentUser();
+                    if (!adminUser || adminUser.type !== 'admin') {
                         navigate('/login');
                         return;
                     }
                     window.HolaDocAdmin.renderDashboard(container);
                     break;
-                    break;
+                }
                 case 'registerPatient':
                     window.HolaDocAuth.renderPatientRegister(container);
                     break;
