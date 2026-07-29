@@ -9,6 +9,7 @@
     // ── Route Definitions ──────────────────────────────────────
     const ROUTES = {
         '/': 'landing',
+        '/admin': 'admin',
         '/login': 'login',
         '/register': 'register',
         '/register/patient': 'registerPatient',
