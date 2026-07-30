@@ -847,7 +847,7 @@
                                             
                                             ${r.status === 'cancelado' && r.cancelReason ? `
                                                 <div style="margin: 8px 0; padding: 10px 14px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; color: #991B1B; font-size:15px;">
-                                                    ⚠️ <b>Motivo de la cancelación:</b> ${escapeHtml(r.cancelReason)}
+                                                    ⚠️ <b>Motivo de la cancelación:</b> ${r.cancelReason.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                                                 </div>
                                             ` : ''}
 
