@@ -44,7 +44,8 @@ function camelizeRow(row) {
     heartrate: 'heartRate', respiratoryrate: 'respiratoryRate', oxygensat: 'oxygenSat',
     bodytemp: 'bodyTemp', apptid: 'apptId', usertype: 'userType', relatedid: 'relatedId',
     pathologicalhistory: 'pathologicalHistory', surgicalhistory: 'surgicalHistory',
-    currentmedication: 'currentMedication', nextobjectives: 'nextObjectives', userdni: 'userDni'
+    currentmedication: 'currentMedication', nextobjectives: 'nextObjectives', userdni: 'userDni',
+    cancelreason: 'cancelReason'
   };
   const camelized = {};
   for (const key in row) {
@@ -111,8 +112,15 @@ async function initDb() {
     status VARCHAR(50) DEFAULT 'pendiente',
     type VARCHAR(50),
     notes TEXT,
+    cancelReason TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  try {
+    await dbRun(`ALTER TABLE appointments ADD COLUMN cancelReason TEXT`);
+  } catch (err) {
+    // Column might already exist
+  }
 
   await dbRun(`CREATE TABLE IF NOT EXISTS requests (
     id VARCHAR(255) PRIMARY KEY,
@@ -430,8 +438,8 @@ app.put('/api/appointments/:id', async (req, res) => {
 
     const updated = { ...current, ...req.body };
     await dbRun(
-      `UPDATE appointments SET status = ?, notes = ?, date = ?, time = ? WHERE id = ?`,
-      [updated.status, updated.notes, updated.date, updated.time, req.params.id]
+      `UPDATE appointments SET status = ?, notes = ?, date = ?, time = ?, cancelReason = ? WHERE id = ?`,
+      [updated.status, updated.notes, updated.date, updated.time, updated.cancelReason, req.params.id]
     );
     res.json(updated);
   } catch (err) {

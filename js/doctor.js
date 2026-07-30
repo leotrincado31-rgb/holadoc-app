@@ -1253,6 +1253,11 @@
                     ` : ''}
                   </div>
                 </div>
+                ${a.status === 'cancelado' && a.cancelReason ? `
+                  <div style="margin-top: 8px; padding: 10px 14px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; color: #991B1B; font-size:14px;">
+                      ⚠️ <b>Motivo de la cancelación:</b> ${escapeHtml(a.cancelReason)}
+                  </div>
+                ` : ''}
               </div>`;
           }).join('')}
         </div>`;

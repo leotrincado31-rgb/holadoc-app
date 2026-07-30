@@ -962,7 +962,7 @@
                         const appt = appointments.find(a => a.id === id);
                         if (!appt) return;
                         const dateStr = new Date(appt.date + 'T00:00:00').toLocaleDateString('es-AR', {day: '2-digit', month: 'long', year: 'numeric'});
-                        showCancelAppointmentModal(appt, dateStr, () => renderTabs(activeTab));
+                        showCancelAppointmentModal(appt, dateStr, () => window.HolaDocPatient.renderHistory(container));
                     });
                 });
             }
